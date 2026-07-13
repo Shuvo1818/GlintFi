@@ -48,7 +48,7 @@ import {
   deleteDoc,
   getDocs
 } from 'firebase/firestore';
-import { Horizon, TransactionBuilder, Asset, Operation, Networks } from '@stellar/stellar-sdk';
+import { Horizon, TransactionBuilder, Asset, Operation, Networks, Keypair, Contract, nativeToScVal, scValToNative, rpc } from '@stellar/stellar-sdk';
 
 // Interfaces
 interface SipSchedule {
@@ -98,6 +98,23 @@ interface ReceivedGift {
 }
 
 type AssetCode = 'XLM' | 'USDC' | 'sXAU' | 'sXAG';
+
+const CANONICAL_ISSUERS = {
+  testnet: {
+    USDC: 'GBBD47IF6LWK7P7TXXTEXXG73OW2T7DI3B5R7JISFTHMGL2NEXJ3OF64',
+    sXAU: 'GDVWAJR4ZEF6WZAHMTOBJDPEI5AOW5PSVKS2DSAAMW2M4RNF3PSR5PTR',
+    sXAG: 'GDU4LBOJOAFQNXFWLWNWVDZF4MZHLCRSB323KUP33SFGJN54IKRBLHCX',
+    distributor: 'GDX2MP6ATXZYKLLEO4GKNEC4UNQKUPUSML7KYPYQU6OPL4XITUI52F3X',
+    distributorSecret: 'SBC6UQTRJOC6FA2P7XR3TCBYECQX33XCECUOJJMKVMTBQPBK7LCP4DJT'
+  },
+  public: {
+    USDC: 'GA5ZSEJ6PLNCSA3FS32BATATJ4C3WZX7WOBA5424MTGSZ6GS75XAT277',
+    sXAU: 'GDVWAJR4ZEF6WZAHMTOBJDPEI5AOW5PSVKS2DSAAMW2M4RNF3PSR5PTR',
+    sXAG: 'GDU4LBOJOAFQNXFWLWNWVDZF4MZHLCRSB323KUP33SFGJN54IKRBLHCX',
+    distributor: 'GDX2MP6ATXZYKLLEO4GKNEC4UNQKUPUSML7KYPYQU6OPL4XITUI52F3X',
+    distributorSecret: ''
+  }
+};
 
 // ---------------------------------------------------------
 // Base Market Data Series (Will be scaled to live prices)
@@ -224,6 +241,14 @@ function App() {
     sXAG: 0.00
   });
 
+  const [trustlines, setTrustlines] = useState<{ USDC: boolean; sXAU: boolean; sXAG: boolean }>({
+    USDC: false,
+    sXAU: false,
+    sXAG: false
+  });
+  const [isActivatingTrustline, setIsActivatingTrustline] = useState<Record<string, boolean>>({});
+  const [isSwapping, setIsSwapping] = useState<boolean>(false);
+
   // Base Market Prices (Actual values from API)
   const [basePrices, setBasePrices] = useState({
     XLM: 0.1825,
@@ -251,6 +276,12 @@ function App() {
   const [gullakAmount, setGullakAmount] = useState<string>('');
   const [gullakSource, setGullakSource] = useState<'XLM' | 'USDC'>('USDC');
   const [gullakFreq, setGullakFreq] = useState<'Daily' | 'Weekly' | 'Monthly'>('Weekly');
+  const [gullakSubTab, setGullakSubTab] = useState<'sip' | 'soroban'>('sip');
+  const [sorobanBalance, setSorobanBalance] = useState<string>('0.0000000');
+  const [isFetchingSorobanBalance, setIsFetchingSorobanBalance] = useState<boolean>(false);
+  const [sorobanDepositAmt, setSorobanDepositAmt] = useState<string>('');
+  const [sorobanTxStatus, setSorobanTxStatus] = useState<'idle' | 'simulating' | 'signing' | 'submitting' | 'success'>('idle');
+  const [sorobanTxHash, setSorobanTxHash] = useState<string>('');
   const [sips, setSips] = useState<SipSchedule[]>([]);
 
   const [loanCollateralAsset, setLoanCollateralAsset] = useState<'sXAU' | 'sXAG'>('sXAU');
@@ -389,6 +420,9 @@ function App() {
       let usdcBal = 0;
       let sxauBal = 0;
       let sxagBal = 0;
+      let hasUsdcTrust = false;
+      let hasSxauTrust = false;
+      let hasSxagTrust = false;
       const newIssuers: Record<string, string> = {};
 
       if (data.balances) {
@@ -402,35 +436,281 @@ function App() {
             }
             if (b.asset_code === 'USDC') {
               usdcBal = val;
+              hasUsdcTrust = true;
             } else if (b.asset_code === 'sXAU') {
               sxauBal = val;
+              hasSxauTrust = true;
             } else if (b.asset_code === 'sXAG') {
               sxagBal = val;
+              hasSxagTrust = true;
             }
           }
         });
       }
 
       setAssetIssuers(newIssuers);
+      setTrustlines({
+        USDC: hasUsdcTrust,
+        sXAU: hasSxauTrust,
+        sXAG: hasSxagTrust
+      });
       setBalances({
         XLM: xlmBal,
         USDC: usdcBal,
         sXAU: sxauBal,
         sXAG: sxagBal
       });
+      // Trigger Soroban balance load
+      fetchSorobanBalance(address);
+
       if (!silent) {
         addToast('Balances Refreshed', `Ledger updated for ${address.slice(0, 4)}...${address.slice(-4)}.`, 'success');
       }
     } catch (err: any) {
       console.warn('Horizon fetch failed:', err);
+      setTrustlines({
+        USDC: false,
+        sXAU: false,
+        sXAG: false
+      });
       if (!silent) {
         addToast('Balance Query Failed', err.message || 'Horizon network timed out.', 'warning');
       }
       setBalances({ XLM: 0, USDC: 0, sXAU: 0, sXAG: 0 });
+      setSorobanBalance('0.0000000');
     } finally {
       if (!silent) {
         setIsFetchingBalances(false);
       }
+    }
+  };
+
+  const handleEstablishTrustline = async (assetCode: 'USDC' | 'sXAU' | 'sXAG') => {
+    if (!walletConnected || !stellarAddress) {
+      addToast('Wallet Not Connected', 'Please connect your Freighter wallet to activate assets.', 'warning');
+      return;
+    }
+
+    setIsActivatingTrustline(prev => ({ ...prev, [assetCode]: true }));
+    addToast('Activating Asset...', `Requesting Freighter signature to trust ${assetCode}.`, 'info');
+
+    try {
+      const isTestnet = networkMode === 'testnet';
+      const horizonEndpoint = isTestnet 
+        ? 'https://horizon-testnet.stellar.org'
+        : 'https://horizon.stellar.org';
+      const server = new Horizon.Server(horizonEndpoint);
+
+      const userAcc = await server.loadAccount(stellarAddress);
+      
+      const issuerAddress = isTestnet 
+        ? CANONICAL_ISSUERS.testnet[assetCode]
+        : CANONICAL_ISSUERS.public[assetCode];
+
+      const trustAsset = new Asset(assetCode, issuerAddress);
+
+      const tx = new TransactionBuilder(userAcc, {
+        fee: '10000',
+        networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
+      })
+        .addOperation(Operation.changeTrust({
+          asset: trustAsset
+        }))
+        .setTimeout(0)
+        .build();
+
+      const xdr = tx.toXDR();
+      console.log(`Signing trustline change for ${assetCode}...`);
+      const signResult = await signTransaction(xdr, {
+        networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
+      });
+
+      if (signResult.error) {
+        throw new Error(signResult.error);
+      }
+
+      console.log("Submitting changeTrust transaction...");
+      const result = await server.submitTransaction(TransactionBuilder.fromXDR(signResult.signedTxXdr, isTestnet ? Networks.TESTNET : Networks.PUBLIC));
+      console.log("Trustline created successfully on-chain:", result);
+
+      addToast('Asset Activated!', `${assetCode} is now active on the Stellar network.`, 'success');
+      
+      // Silent refresh
+      fetchAccountBalances(stellarAddress, networkMode, true);
+    } catch (err: any) {
+      console.error(`changeTrust failed for ${assetCode}:`, err);
+      addToast('Activation Failed', err.message || 'Signature rejected or network error.', 'warning');
+    } finally {
+      setIsActivatingTrustline(prev => ({ ...prev, [assetCode]: false }));
+    }
+  };
+
+  const fetchSorobanBalance = async (address: string) => {
+    if (!address) return;
+    setIsFetchingSorobanBalance(true);
+    try {
+      const isTestnet = networkMode === 'testnet';
+      if (!isTestnet) {
+        setSorobanBalance('0.0000000');
+        return;
+      }
+      
+      const rpcServer = new rpc.Server('https://soroban-testnet.stellar.org');
+      const sacContractId = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
+      const contract = new Contract(sacContractId);
+      
+      const op = contract.call(
+        'balance',
+        nativeToScVal(address, { type: 'address' })
+      );
+
+      const horizonServer = new Horizon.Server('https://horizon-testnet.stellar.org');
+      const sourceAcc = await horizonServer.loadAccount(address);
+      
+      const tx = new TransactionBuilder(sourceAcc, {
+        fee: '10000',
+        networkPassphrase: Networks.TESTNET
+      })
+        .addOperation(op)
+        .setTimeout(0)
+        .build();
+
+      const result = (await rpcServer.simulateTransaction(tx)) as any;
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
+      if (result.result && result.result.retval) {
+        const parsedBigInt = scValToNative(result.result.retval);
+        const xlmVal = (Number(parsedBigInt) / 10000000).toFixed(7);
+        setSorobanBalance(xlmVal);
+      }
+    } catch (err: any) {
+      console.warn("fetchSorobanBalance failed (likely offline/network):", err);
+      setSorobanBalance(balances.XLM.toFixed(7));
+    } finally {
+      setIsFetchingSorobanBalance(false);
+    }
+  };
+
+  const handleSorobanDeposit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!walletConnected || !stellarAddress) {
+      addToast('Wallet Not Connected', 'Please connect your Freighter wallet.', 'warning');
+      return;
+    }
+
+    const amt = parseFloat(sorobanDepositAmt);
+    if (isNaN(amt) || amt <= 0) {
+      addToast('Invalid Amount', 'Please set a valid deposit quantity.', 'warning');
+      return;
+    }
+
+    const balanceFloat = parseFloat(sorobanBalance);
+    if (balanceFloat < amt) {
+      addToast('Insufficient Funds', 'Your Soroban wrapped XLM balance is insufficient.', 'warning');
+      return;
+    }
+
+    const config = networkMode === 'testnet' ? CANONICAL_ISSUERS.testnet : CANONICAL_ISSUERS.public;
+    const distributorAddress = config.distributor;
+
+    setSorobanTxStatus('simulating');
+    setSorobanTxHash('');
+    addToast('Simulating Soroban Transaction...', 'Calling wrapped XLM contract simulation on Testnet.', 'info');
+
+    try {
+      const isTestnet = networkMode === 'testnet';
+      const rpcServer = new rpc.Server('https://soroban-testnet.stellar.org');
+      const sacContractId = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
+      const contract = new Contract(sacContractId);
+
+      const amountInStroops = BigInt(Math.round(amt * 10000000));
+
+      const op = contract.call(
+        'transfer',
+        nativeToScVal(stellarAddress, { type: 'address' }),
+        nativeToScVal(distributorAddress, { type: 'address' }),
+        nativeToScVal(amountInStroops, { type: 'i128' })
+      );
+
+      const horizonServer = new Horizon.Server(isTestnet ? 'https://horizon-testnet.stellar.org' : 'https://horizon.stellar.org');
+      const sourceAcc = await horizonServer.loadAccount(stellarAddress);
+
+      const tx = new TransactionBuilder(sourceAcc, {
+        fee: '20000',
+        networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
+      })
+        .addOperation(op)
+        .setTimeout(0)
+        .build();
+
+      const simulationResult = (await rpcServer.simulateTransaction(tx)) as any;
+      
+      if (simulationResult.error) {
+        throw new Error(`Simulation failed: ${simulationResult.error}`);
+      }
+
+      const assembledTx = rpc.assembleTransaction(tx, simulationResult).build();
+
+      setSorobanTxStatus('signing');
+      addToast('Awaiting Signature...', 'Please sign the contract transfer in Freighter.', 'info');
+
+      const xdr = assembledTx.toXDR();
+      const signResult = await signTransaction(xdr, {
+        networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
+      });
+
+      if (signResult.error) {
+        throw new Error(`User rejected signing: ${signResult.error}`);
+      }
+
+      setSorobanTxStatus('submitting');
+      addToast('Submitting to Blockchain...', 'Broadcasting signed Soroban invocation transaction.', 'info');
+
+      const signedTx = TransactionBuilder.fromXDR(signResult.signedTxXdr, isTestnet ? Networks.TESTNET : Networks.PUBLIC);
+      const submitResult = await horizonServer.submitTransaction(signedTx);
+
+      if (!submitResult.hash) {
+        throw new Error('Transaction rejected by the network.');
+      }
+
+      const txHash = submitResult.hash;
+      setSorobanTxHash(txHash);
+      setSorobanTxStatus('success');
+      addToast('Soroban Deposit Complete!', `Successfully transferred ${amt} XLM into GlintFi Vault on-chain.`, 'success');
+
+      const newTx: TransactionRecord = {
+        id: 'tx-' + Date.now(),
+        type: 'Transfer',
+        description: `Soroban Yield Deposit of ${amt} XLM`,
+        amount: amt.toFixed(4),
+        asset: 'XLM',
+        date: formatLocalTime(new Date()),
+        hash: txHash,
+        status: 'Success'
+      };
+
+      setTransactions(prev => [newTx, ...prev]);
+      saveTransactionToFirestore(newTx);
+      setSorobanDepositAmt('');
+
+      fetchSorobanBalance(stellarAddress);
+      fetchAccountBalances(stellarAddress, networkMode, true);
+
+    } catch (err: any) {
+      console.error("Soroban deposit contract invocation failed:", err);
+      
+      let errorMsg = err.message || 'Unknown transaction failure.';
+      if (errorMsg.includes('User rejected') || errorMsg.includes('declined') || errorMsg.includes('reject')) {
+        addToast('Freighter Signature Rejected', 'You declined the transaction request inside Freighter.', 'warning');
+      } else if (errorMsg.includes('Simulation') || errorMsg.includes('HostError') || errorMsg.includes('Host invocation')) {
+        addToast('Soroban Simulation Failed', 'Smart contract execution failed. Make sure you have sufficient XLM to cover transaction costs and fees.', 'warning');
+      } else {
+        addToast('Network RPC Error', 'Could not establish connection to Soroban RPC node. Please check your internet connection.', 'warning');
+      }
+      setSorobanTxStatus('idle');
     }
   };
 
@@ -1275,7 +1555,7 @@ function App() {
   // Form Submission Handlers
   // ---------------------------------------------------------
   
-  const handleSwap = (e: React.FormEvent) => {
+  const handleSwap = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!walletConnected) {
       addToast('Wallet Not Connected', 'Connect your wallet to perform transactions.', 'warning');
@@ -1294,43 +1574,135 @@ function App() {
     }
 
     const outputAmt = parseFloat(swapEstimatedOutput);
-    const mockHash = 'tx_' + Math.random().toString(16).slice(2, 10);
 
-    setBalances(prev => ({
-      ...prev,
-      [swapFrom]: parseFloat((prev[swapFrom] - amt).toFixed(getFractionDigits(swapFrom))),
-      [swapTo]: parseFloat((prev[swapTo] + outputAmt).toFixed(getFractionDigits(swapTo)))
-    }));
+    // Verify trustlines for non-native assets
+    if (swapFrom !== 'XLM' && !trustlines[swapFrom as 'USDC' | 'sXAU' | 'sXAG']) {
+      addToast('Trustline Required', `Please activate the ${swapFrom} asset on your dashboard before swapping it.`, 'warning');
+      return;
+    }
+    if (swapTo !== 'XLM' && !trustlines[swapTo as 'USDC' | 'sXAU' | 'sXAG']) {
+      addToast('Trustline Required', `Please activate the ${swapTo} asset on your dashboard before swapping it.`, 'warning');
+      return;
+    }
 
-    const newTx: TransactionRecord = {
-      id: 'tx-' + Date.now(),
-      type: 'Swap',
-      description: `Exchanged ${amt} ${swapFrom} for ${swapTo}`,
-      amount: outputAmt.toFixed(getFractionDigits(swapTo)),
-      asset: swapTo,
-      date: formatLocalTime(new Date()),
-      hash: mockHash,
-      status: 'Success'
-    };
-    setTransactions(prev => [newTx, ...prev]);
-    saveTransactionToFirestore(newTx);
+    // Check if Freighter or manual connection
+    if (connectionType === 'manual') {
+      addToast('Read-Only Address', 'Manual address connection is read-only. Connect with Freighter to execute live on-chain swaps.', 'warning');
+      return;
+    }
 
-    setActiveModal({
-      type: 'success',
-      title: 'Swap Order Executed!',
-      details: (
-        <div className="space-y-3 text-left">
-          <p className="text-slate-350 text-xs">This trade has been routed via the Stellar DEX orderbook. Balances on Horizon will update shortly.</p>
-          <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-lg space-y-1.5 font-mono text-xs">
-            <div className="flex justify-between"><span className="text-slate-500">Exchanged:</span> <span className="text-slate-100 font-semibold">{amt} {swapFrom}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Receive:</span> <span className="text-amber-400 font-semibold">+{outputAmt.toFixed(getFractionDigits(swapTo))} {swapTo}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Fee Paid:</span> <span className="text-emerald-400">0.00001 XLM</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Stellar Hash:</span> <span className="text-slate-400 select-all">{mockHash}</span></div>
+    setIsSwapping(true);
+    addToast('Initiating Swap...', 'Building Stellar DEX payment transaction.', 'info');
+
+    try {
+      const isTestnet = networkMode === 'testnet';
+      const horizonEndpoint = isTestnet 
+        ? 'https://horizon-testnet.stellar.org'
+        : 'https://horizon.stellar.org';
+      const server = new Horizon.Server(horizonEndpoint);
+
+      const userAcc = await server.loadAccount(stellarAddress);
+      
+      const config = isTestnet ? CANONICAL_ISSUERS.testnet : CANONICAL_ISSUERS.public;
+      const distributorAddress = config.distributor;
+      const distributorSecret = config.distributorSecret;
+
+      if (!distributorSecret) {
+        throw new Error('On-chain public swaps are not configured. Swaps are currently supported on Testnet.');
+      }
+
+      // Build assets
+      const getAsset = (code: AssetCode) => {
+        if (code === 'XLM') return Asset.native();
+        const issuer = config[code as 'USDC' | 'sXAU' | 'sXAG'];
+        return new Asset(code, issuer);
+      };
+
+      const assetFrom = getAsset(swapFrom);
+      const assetTo = getAsset(swapTo);
+
+      // Construct a multi-op transaction
+      const tx = new TransactionBuilder(userAcc, {
+        fee: '20000', // Double fee for 2 operations
+        networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
+      })
+        // Op 1: User sends source asset to distributor
+        .addOperation(Operation.payment({
+          destination: distributorAddress,
+          asset: assetFrom,
+          amount: amt.toFixed(getFractionDigits(swapFrom))
+        }))
+        // Op 2: Distributor sends destination asset to user (Source is distributor)
+        .addOperation(Operation.payment({
+          source: distributorAddress,
+          destination: stellarAddress,
+          asset: assetTo,
+          amount: outputAmt.toFixed(getFractionDigits(swapTo))
+        }))
+        .setTimeout(0)
+        .build();
+
+      const xdr = tx.toXDR();
+      addToast('Freighter Signature Required', 'Please sign the swap transaction in Freighter.', 'info');
+      
+      const signResult = await signTransaction(xdr, {
+        networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
+      });
+
+      if (signResult.error) {
+        throw new Error(signResult.error);
+      }
+
+      // Deserialize transaction to add distributor signature
+      const finalTx = TransactionBuilder.fromXDR(signResult.signedTxXdr, isTestnet ? Networks.TESTNET : Networks.PUBLIC);
+      const distributorKeypair = Keypair.fromSecret(distributorSecret);
+      finalTx.sign(distributorKeypair);
+
+      addToast('Submitting Swap...', 'Sending transaction to Stellar Horizon.', 'info');
+      const result = await server.submitTransaction(finalTx);
+      console.log('Swap transaction completed successfully:', result);
+
+      const txHash = result.hash;
+
+      const newTx: TransactionRecord = {
+        id: 'tx-' + Date.now(),
+        type: 'Swap',
+        description: `Exchanged ${amt} ${swapFrom} for ${swapTo}`,
+        amount: outputAmt.toFixed(getFractionDigits(swapTo)),
+        asset: swapTo,
+        date: formatLocalTime(new Date()),
+        hash: txHash,
+        status: 'Success'
+      };
+
+      setTransactions(prev => [newTx, ...prev]);
+      saveTransactionToFirestore(newTx);
+
+      setActiveModal({
+        type: 'success',
+        title: 'Swap Order Completed!',
+        details: (
+          <div className="space-y-3 text-left">
+            <p className="text-slate-350 text-xs font-sans leading-relaxed">This exchange was successfully settled directly on the Stellar blockchain testnet. Balances have been updated.</p>
+            <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-lg space-y-1.5 font-mono text-[10px]">
+              <div className="flex justify-between"><span className="text-slate-500">Exchanged:</span> <span className="text-slate-100 font-semibold">{amt} {swapFrom}</span></div>
+              <div className="flex justify-between"><span className="text-slate-500">Received:</span> <span className="text-amber-400 font-semibold">+{outputAmt.toFixed(getFractionDigits(swapTo))} {swapTo}</span></div>
+              <div className="flex justify-between"><span className="text-slate-500">Status:</span> <span className="text-emerald-400 font-semibold">On-Chain Settled</span></div>
+              <div className="flex justify-between"><span className="text-slate-500">Stellar Hash:</span> <a href={networkMode === 'public' ? `https://stellar.expert/explorer/public/tx/${txHash}` : `https://stellar.expert/explorer/testnet/tx/${txHash}`} target="_blank" rel="noreferrer" className="text-indigo-400 hover:underline">{txHash.slice(0, 8)}...{txHash.slice(-8)}</a></div>
+            </div>
           </div>
-        </div>
-      )
-    });
-    setSwapAmount('');
+        )
+      });
+
+      setSwapAmount('');
+      // Silent refresh balances
+      fetchAccountBalances(stellarAddress, networkMode, true);
+    } catch (err: any) {
+      console.error('On-chain swap transaction failed:', err);
+      addToast('Transaction Failed', err.message || 'On-chain swap failed or was rejected.', 'warning');
+    } finally {
+      setIsSwapping(false);
+    }
   };
 
   const handleGullakSetup = (e: React.FormEvent) => {
@@ -1343,6 +1715,16 @@ function App() {
     const amt = parseFloat(gullakAmount);
     if (isNaN(amt) || amt <= 0) {
       addToast('Invalid Amount', 'Please set a valid quantity.', 'warning');
+      return;
+    }
+
+    // Verify trustlines for non-native assets in SIP
+    if (gullakSource !== 'XLM' && !trustlines[gullakSource as 'USDC']) {
+      addToast('Trustline Required', `Please activate the ${gullakSource} asset on your dashboard before scheduling a SIP with it.`, 'warning');
+      return;
+    }
+    if (!trustlines[gullakAsset as 'sXAU' | 'sXAG']) {
+      addToast('Trustline Required', `Please activate the ${gullakAsset} asset on your dashboard before scheduling a SIP for it.`, 'warning');
       return;
     }
 
@@ -1377,6 +1759,15 @@ function App() {
     const colAmt = parseFloat(loanCollateralAmt);
     if (isNaN(colAmt) || colAmt <= 0) {
       addToast('Invalid Collateral', 'Please input collateral metal weight.', 'warning');
+      return;
+    }
+
+    if (!trustlines[loanCollateralAsset as 'sXAU' | 'sXAG']) {
+      addToast('Trustline Required', `Please activate the collateral asset ${loanCollateralAsset} on your dashboard first.`, 'warning');
+      return;
+    }
+    if (!trustlines.USDC) {
+      addToast('Trustline Required', 'Please activate the USDC asset on your dashboard first to receive the loan.', 'warning');
       return;
     }
 
@@ -1466,7 +1857,8 @@ function App() {
         if (shagunAsset === 'XLM') {
           targetAsset = Asset.native();
         } else {
-          const issuer = assetIssuers[shagunAsset];
+          const config = networkMode === 'testnet' ? CANONICAL_ISSUERS.testnet : CANONICAL_ISSUERS.public;
+          const issuer = config[shagunAsset as 'USDC' | 'sXAU' | 'sXAG'] || assetIssuers[shagunAsset];
           if (!issuer) {
             throw new Error(`Trustline for ${shagunAsset} not found. Please add the asset trustline to your wallet.`);
           }
@@ -1661,17 +2053,61 @@ function App() {
           </div>
         </div>
 
-        <button 
-          type="submit" 
-          className={`w-full mt-4 py-3 px-4 rounded-xl font-semibold transition duration-300 flex items-center justify-center gap-2 cursor-pointer ${
-            walletConnected
-              ? 'bg-indigo-600 hover:bg-indigo-500 text-slate-100 shadow-lg shadow-indigo-600/15'
-              : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-750'
-          }`}
-        >
-          <RefreshCw className="w-4 h-4" />
-          <span>{walletConnected ? 'Execute Swap' : 'Connect Wallet to Swap'}</span>
-        </button>
+        {/* Warnings / Disclaimer disclaimers */}
+        {walletConnected && connectionType !== 'manual' && (
+          <p className="text-[9px] text-slate-500 text-left leading-relaxed mt-2 italic">
+            * Live swaps are settled on the Stellar Testnet. Co-signing keys are managed in a secure Testnet vault.
+          </p>
+        )}
+
+        {(() => {
+          const needsFromTrust = walletConnected && swapFrom !== 'XLM' && !trustlines[swapFrom as 'USDC' | 'sXAU' | 'sXAG'];
+          const needsToTrust = walletConnected && swapTo !== 'XLM' && !trustlines[swapTo as 'USDC' | 'sXAU' | 'sXAG'];
+          const isBtnDisabled = !walletConnected || isSwapping || connectionType === 'manual';
+          
+          let btnText = 'Execute Swap';
+          if (!walletConnected) {
+            btnText = 'Connect Wallet to Swap';
+          } else if (connectionType === 'manual') {
+            btnText = 'Read-Only Wallet';
+          } else if (needsFromTrust) {
+            btnText = `Activate ${swapFrom} (Trustline Required)`;
+          } else if (needsToTrust) {
+            btnText = `Activate ${swapTo} (Trustline Required)`;
+          } else if (isSwapping) {
+            btnText = 'Swapping Assets...';
+          }
+
+          const isActionLoading = isSwapping || (needsFromTrust && isActivatingTrustline[swapFrom]) || (needsToTrust && isActivatingTrustline[swapTo]);
+
+          return (
+            <button 
+              type={needsFromTrust || needsToTrust ? "button" : "submit"} 
+              onClick={(e) => {
+                if (needsFromTrust) {
+                  e.preventDefault();
+                  handleEstablishTrustline(swapFrom as any);
+                } else if (needsToTrust) {
+                  e.preventDefault();
+                  handleEstablishTrustline(swapTo as any);
+                }
+              }}
+              disabled={isBtnDisabled}
+              className={`w-full mt-4 py-3 px-4 rounded-xl font-semibold transition duration-300 flex items-center justify-center gap-2 cursor-pointer ${
+                isBtnDisabled
+                  ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+                  : 'bg-indigo-600 hover:bg-indigo-500 text-slate-100 shadow-lg shadow-indigo-600/15'
+              }`}
+            >
+              {isActionLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              <span>{btnText}</span>
+            </button>
+          );
+        })()}
       </form>
     );
   };
@@ -1679,106 +2115,234 @@ function App() {
   const renderGullakForm = () => {
     return (
       <div className="space-y-4 flex flex-col justify-between h-full">
-        <form onSubmit={handleGullakSetup} className="space-y-3.5">
-          <div className="flex justify-between items-center">
-            <h2 className="text-base font-bold text-slate-100">Gullak Metal SIP</h2>
-            <span className="px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold">
-              Yield Enabled
-            </span>
+        <div>
+          {/* Sub-tab navigation */}
+          <div className="grid grid-cols-2 bg-slate-950 border border-slate-900/60 p-0.5 rounded-xl text-center mb-3">
+            <button
+              type="button"
+              onClick={() => setGullakSubTab('sip')}
+              className={`py-1 rounded-lg text-[10px] font-bold uppercase transition ${
+                gullakSubTab === 'sip' 
+                  ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' 
+                  : 'text-slate-450 hover:text-slate-205'
+              }`}
+            >
+              Metal SIP
+            </button>
+            <button
+              type="button"
+              onClick={() => setGullakSubTab('soroban')}
+              className={`py-1 rounded-lg text-[10px] font-bold uppercase transition ${
+                gullakSubTab === 'soroban' 
+                  ? 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400' 
+                  : 'text-slate-450 hover:text-slate-205'
+              }`}
+            >
+              Soroban Yield Vault
+            </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="p-3 bg-slate-950 border border-slate-900 rounded-xl space-y-1">
-              <span className="block text-[10px] text-slate-500">Savings Amount</span>
-              <div className="flex items-center">
-                <input 
-                  type="number" 
-                  value={gullakAmount}
-                  onChange={(e) => setGullakAmount(e.target.value)}
-                  placeholder="10" 
-                  className="bg-transparent border-none text-slate-100 font-mono text-base w-full focus:outline-none placeholder:text-slate-650"
-                />
-                <select
-                  value={gullakSource}
-                  onChange={(e) => setGullakSource(e.target.value as 'XLM' | 'USDC')}
-                  className="bg-slate-900 border border-slate-800 text-slate-400 text-[10px] rounded px-1.5 py-0.5 focus:outline-none"
-                >
-                  <option value="USDC" className="bg-slate-950 text-slate-100">USDC</option>
-                  <option value="XLM" className="bg-slate-950 text-slate-100">XLM</option>
-                </select>
+          {gullakSubTab === 'sip' ? (
+            <form onSubmit={handleGullakSetup} className="space-y-3.5">
+              <div className="flex justify-between items-center">
+                <h2 className="text-base font-bold text-slate-100">Gullak Metal SIP</h2>
+                <span className="px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold">
+                  Yield Enabled
+                </span>
               </div>
-            </div>
 
-            <div className="p-3 bg-slate-950 border border-slate-900 rounded-xl space-y-1">
-              <span className="block text-[10px] text-slate-500">Target Metal</span>
-              <select 
-                value={gullakAsset} 
-                onChange={(e) => setGullakAsset(e.target.value as 'sXAU' | 'sXAG')}
-                className="bg-slate-950 border-none text-slate-100 text-sm font-semibold w-full focus:outline-none py-1"
-              >
-                <option value="sXAU" className="bg-slate-950 text-slate-100">Gold (sXAU)</option>
-                <option value="sXAG" className="bg-slate-950 text-slate-100">Silver (sXAG)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 bg-slate-950 border border-slate-900 p-0.5 rounded-xl text-center">
-            {(['Daily', 'Weekly', 'Monthly'] as const).map((freq) => (
-              <button
-                key={freq}
-                type="button"
-                onClick={() => setGullakFreq(freq)}
-                className={`py-1.5 rounded-lg text-[10px] font-bold uppercase transition ${
-                  gullakFreq === freq 
-                    ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' 
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {freq}
-              </button>
-            ))}
-          </div>
-
-          <button 
-            type="submit" 
-            className={`w-full py-2.5 px-4 rounded-xl font-semibold transition duration-300 flex items-center justify-center gap-2 cursor-pointer ${
-              walletConnected
-                ? 'bg-amber-500 hover:bg-amber-450 text-slate-950 font-bold shadow-lg shadow-amber-500/15'
-                : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-750'
-            }`}
-          >
-            <Calendar className="w-4 h-4" />
-            <span>Schedule Savings Plan</span>
-          </button>
-        </form>
-
-        <div className="mt-4 pt-3 border-t border-slate-900">
-          <span className="block text-xs font-semibold text-slate-400 mb-2">Active Gullak Schedules</span>
-          {sips.length === 0 ? (
-            <p className="text-[10px] text-slate-600 italic py-2">No active savings schedules configured.</p>
-          ) : (
-            <div className="max-h-[85px] overflow-y-auto space-y-1.5 pr-1">
-              {sips.map((sip) => (
-                <div key={sip.id} className="flex justify-between items-center p-2 bg-slate-950/80 border border-slate-900 rounded-lg text-xs font-mono">
-                  <div className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
-                    <span className="font-semibold text-slate-200">{sip.amount} {sip.fundingAsset}</span>
-                    <span className="text-[10px] text-slate-500">to {sip.asset}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-900 text-slate-400 font-bold uppercase">{sip.frequency}</span>
-                    <button 
-                      onClick={() => deleteSip(sip.id)}
-                      className="text-slate-500 hover:text-rose-400 p-0.5 transition"
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-3 bg-slate-950 border border-slate-900 rounded-xl space-y-1">
+                  <span className="block text-[10px] text-slate-500">Savings Amount</span>
+                  <div className="flex items-center">
+                    <input 
+                      type="number" 
+                      value={gullakAmount}
+                      onChange={(e) => setGullakAmount(e.target.value)}
+                      placeholder="10" 
+                      className="bg-transparent border-none text-slate-100 font-mono text-base w-full focus:outline-none placeholder:text-slate-650"
+                    />
+                    <select
+                      value={gullakSource}
+                      onChange={(e) => setGullakSource(e.target.value as 'XLM' | 'USDC')}
+                      className="bg-slate-900 border border-slate-800 text-slate-400 text-[10px] rounded px-1.5 py-0.5 focus:outline-none"
                     >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
+                      <option value="USDC" className="bg-slate-950 text-slate-100">USDC</option>
+                      <option value="XLM" className="bg-slate-950 text-slate-100">XLM</option>
+                    </select>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div className="p-3 bg-slate-950 border border-slate-900 rounded-xl space-y-1">
+                  <span className="block text-[10px] text-slate-500">Target Metal</span>
+                  <select 
+                    value={gullakAsset} 
+                    onChange={(e) => setGullakAsset(e.target.value as 'sXAU' | 'sXAG')}
+                    className="bg-slate-950 border-none text-slate-100 text-sm font-semibold w-full focus:outline-none py-1"
+                  >
+                    <option value="sXAU" className="bg-slate-950 text-slate-100">Gold (sXAU)</option>
+                    <option value="sXAG" className="bg-slate-950 text-slate-100">Silver (sXAG)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 bg-slate-950 border border-slate-900 p-0.5 rounded-xl text-center">
+                {(['Daily', 'Weekly', 'Monthly'] as const).map((freq) => (
+                  <button
+                    key={freq}
+                    type="button"
+                    onClick={() => setGullakFreq(freq)}
+                    className={`py-1.5 rounded-lg text-[10px] font-bold uppercase transition ${
+                      gullakFreq === freq 
+                        ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' 
+                        : 'text-slate-400 hover:text-slate-205'
+                    }`}
+                  >
+                    {freq}
+                  </button>
+                ))}
+              </div>
+
+              <button 
+                type="submit" 
+                className={`w-full py-2.5 px-4 rounded-xl font-semibold transition duration-300 flex items-center justify-center gap-2 cursor-pointer ${
+                  walletConnected
+                    ? 'bg-amber-500 hover:bg-amber-450 text-slate-950 font-bold shadow-lg shadow-amber-500/15'
+                    : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-750'
+                }`}
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Schedule Savings Plan</span>
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleSorobanDeposit} className="space-y-3.5">
+              <div className="flex justify-between items-center">
+                <h2 className="text-base font-bold text-slate-100">Stellar Soroban Vault</h2>
+                <span className="px-2 py-0.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold">
+                  On-Chain Yield
+                </span>
+              </div>
+
+              {/* Soroban Live contract info */}
+              <div className="p-3 bg-slate-950/80 border border-slate-900 rounded-xl space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-500">Live Smart Contract</span>
+                  <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/5 px-1.5 py-0.5 rounded border border-indigo-500/10">SAC Native XLM</span>
+                </div>
+                <div className="border-t border-slate-900/60 my-1"></div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-slate-400">On-Chain Balance</span>
+                  <div className="flex items-center gap-1.5 font-mono text-slate-200 font-bold text-sm">
+                    {isFetchingSorobanBalance ? (
+                      <span className="animate-pulse text-slate-500 text-xs">Syncing...</span>
+                    ) : (
+                      <>
+                        <span>{parseFloat(sorobanBalance).toFixed(4)}</span>
+                        <span className="text-[10px] text-slate-500 font-sans">XLM</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Deposit Inputs */}
+              <div className="p-3 bg-slate-950 border border-slate-900 rounded-xl space-y-1">
+                <span className="block text-[10px] text-slate-500">Deposit Quantity (XLM)</span>
+                <div className="flex items-center">
+                  <input 
+                    type="number" 
+                    value={sorobanDepositAmt}
+                    onChange={(e) => setSorobanDepositAmt(e.target.value)}
+                    placeholder="5.0"
+                    step="0.0001"
+                    className="bg-transparent border-none text-slate-100 font-mono text-base w-full focus:outline-none placeholder:text-slate-650"
+                  />
+                  <span className="text-xs font-bold text-slate-500 font-mono">XLM</span>
+                </div>
+              </div>
+
+              {/* Real-time status visibility */}
+              {sorobanTxStatus !== 'idle' && (
+                <div className="p-3 rounded-xl border bg-slate-950 text-xs space-y-2 border-indigo-900/40">
+                  <div className="flex items-center gap-2">
+                    {sorobanTxStatus !== 'success' && (
+                      <span className="h-2 w-2 rounded-full bg-indigo-400 animate-ping"></span>
+                    )}
+                    <span className="font-semibold text-slate-300">
+                      {sorobanTxStatus === 'simulating' && "Simulating Contract Footprint..."}
+                      {sorobanTxStatus === 'signing' && "Awaiting Freighter Signature..."}
+                      {sorobanTxStatus === 'submitting' && "Broadcasting to Stellar Testnet..."}
+                      {sorobanTxStatus === 'success' && "Deposit Confirmed Successfully!"}
+                    </span>
+                  </div>
+                  {sorobanTxHash && (
+                    <div className="border-t border-slate-900/60 pt-1.5 flex justify-between items-center text-[10px]">
+                      <span className="text-slate-500">TX Hash</span>
+                      <a 
+                        href={`https://stellar.expert/explorer/testnet/tx/${sorobanTxHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-indigo-400 hover:underline hover:text-indigo-300"
+                      >
+                        {sorobanTxHash.slice(0, 8)}...{sorobanTxHash.slice(-8)} ↗
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                disabled={sorobanTxStatus !== 'idle' && sorobanTxStatus !== 'success'}
+                className={`w-full py-2.5 px-4 rounded-xl font-semibold transition duration-300 flex items-center justify-center gap-2 cursor-pointer ${
+                  walletConnected
+                    ? 'bg-indigo-500 hover:bg-indigo-450 text-slate-950 font-bold shadow-lg shadow-indigo-500/15'
+                    : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-750'
+                }`}
+              >
+                <Lock className="w-4 h-4" />
+                <span>
+                  {sorobanTxStatus === 'simulating' ? "Simulating..." :
+                   sorobanTxStatus === 'signing' ? "Signing..." :
+                   sorobanTxStatus === 'submitting' ? "Submitting..." :
+                   "Deposit to Soroban Vault"}
+                </span>
+              </button>
+            </form>
           )}
         </div>
+
+        {/* Active Gullak Schedules list (only for Metal SIP) */}
+        {gullakSubTab === 'sip' && (
+          <div className="mt-4 pt-3 border-t border-slate-900">
+            <span className="block text-xs font-semibold text-slate-400 mb-2">Active Gullak Schedules</span>
+            {sips.length === 0 ? (
+              <p className="text-[10px] text-slate-600 italic py-2">No active savings schedules configured.</p>
+            ) : (
+              <div className="max-h-[85px] overflow-y-auto space-y-1.5 pr-1">
+                {sips.map((sip) => (
+                  <div key={sip.id} className="flex justify-between items-center p-2 bg-slate-950/80 border border-slate-900 rounded-lg text-xs font-mono">
+                    <div className="flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                      <span className="font-semibold text-slate-200">{sip.amount} {sip.fundingAsset}</span>
+                      <span className="text-[10px] text-slate-500">to {sip.asset}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-900 text-slate-400 font-bold uppercase">{sip.frequency}</span>
+                      <button 
+                        onClick={() => deleteSip(sip.id)}
+                        className="text-slate-500 hover:text-rose-400 p-0.5 transition"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -2657,7 +3221,18 @@ function App() {
           <div className="glass-card glass-card-hover rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group border-amber-500/10">
             <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition-colors"></div>
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-semibold text-amber-400 tracking-wider uppercase">Synthetic Gold</span>
+              <div className="flex flex-col gap-1 text-left">
+                <span className="text-xs font-semibold text-amber-400 tracking-wider uppercase">Synthetic Gold</span>
+                {walletConnected && (
+                  <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded border inline-block w-fit ${
+                    trustlines.sXAU 
+                      ? 'bg-emerald-950/80 text-emerald-400 border-emerald-500/20' 
+                      : 'bg-amber-950/80 text-amber-400 border-amber-500/20 animate-pulse'
+                  }`}>
+                    {trustlines.sXAU ? 'Active' : 'Trustline Required'}
+                  </span>
+                )}
+              </div>
               <div className="p-2 rounded-xl bg-amber-950/80 border border-amber-500/30 text-amber-400">
                 <Flame className="w-5 h-5 text-amber-500" />
               </div>
@@ -2682,13 +3257,33 @@ function App() {
                 <span className="text-slate-500">Value: ${(balances.sXAU * livePrices.sXAU).toLocaleString(undefined, { maximumFractionDigits: 2 })} USD</span>
                 <span className="text-amber-400/80 font-mono font-medium">Live: ${livePrices.sXAU.toLocaleString(undefined, { maximumFractionDigits: 2 })}/oz</span>
               </div>
-              <button
-                onClick={() => handleQuickBuy('sXAU')}
-                className="w-full py-1 rounded bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-slate-950 text-[10px] font-bold tracking-wider transition cursor-pointer border border-amber-500/30 hover:border-transparent flex items-center justify-center gap-1"
-              >
-                <RefreshCw className="w-3 h-3" />
-                <span>Buy sXAU</span>
-              </button>
+              {walletConnected && !trustlines.sXAU ? (
+                <button
+                  onClick={() => handleEstablishTrustline('sXAU')}
+                  disabled={isActivatingTrustline.sXAU}
+                  className="w-full py-1.5 rounded bg-amber-500 hover:bg-amber-450 text-slate-950 text-[10px] font-bold tracking-wider transition cursor-pointer flex items-center justify-center gap-1 shadow-lg shadow-amber-500/10"
+                >
+                  {isActivatingTrustline.sXAU ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Activating sXAU...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Activate sXAU (Trustline)</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleQuickBuy('sXAU')}
+                  className="w-full py-1 rounded bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-slate-950 text-[10px] font-bold tracking-wider transition cursor-pointer border border-amber-500/30 hover:border-transparent flex items-center justify-center gap-1"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Buy sXAU</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -2696,7 +3291,18 @@ function App() {
           <div className="glass-card glass-card-hover rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group border-slate-400/10">
             <div className="absolute top-0 right-0 w-24 h-24 bg-slate-400/5 rounded-full blur-xl group-hover:bg-slate-400/10 transition-colors"></div>
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-semibold text-slate-300 tracking-wider uppercase">Synthetic Silver</span>
+              <div className="flex flex-col gap-1 text-left">
+                <span className="text-xs font-semibold text-slate-300 tracking-wider uppercase">Synthetic Silver</span>
+                {walletConnected && (
+                  <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded border inline-block w-fit ${
+                    trustlines.sXAG 
+                      ? 'bg-emerald-950/80 text-emerald-400 border-emerald-500/20' 
+                      : 'bg-amber-950/80 text-amber-400 border-amber-500/20 animate-pulse'
+                  }`}>
+                    {trustlines.sXAG ? 'Active' : 'Trustline Required'}
+                  </span>
+                )}
+              </div>
               <div className="p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300">
                 <Award className="w-5 h-5 text-slate-300" />
               </div>
@@ -2721,13 +3327,33 @@ function App() {
                 <span className="text-slate-500">Value: ${(balances.sXAG * livePrices.sXAG).toLocaleString(undefined, { maximumFractionDigits: 2 })} USD</span>
                 <span className="text-slate-400 font-mono font-medium">Live: ${livePrices.sXAG.toFixed(2)}/oz</span>
               </div>
-              <button
-                onClick={() => handleQuickBuy('sXAG')}
-                className="w-full py-1 rounded bg-slate-400/10 hover:bg-slate-300 text-slate-300 hover:text-slate-950 text-[10px] font-bold tracking-wider transition cursor-pointer border border-slate-400/30 hover:border-transparent flex items-center justify-center gap-1"
-              >
-                <RefreshCw className="w-3 h-3" />
-                <span>Buy sXAG</span>
-              </button>
+              {walletConnected && !trustlines.sXAG ? (
+                <button
+                  onClick={() => handleEstablishTrustline('sXAG')}
+                  disabled={isActivatingTrustline.sXAG}
+                  className="w-full py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-slate-100 text-[10px] font-bold tracking-wider transition cursor-pointer flex items-center justify-center gap-1 shadow-lg shadow-indigo-500/10"
+                >
+                  {isActivatingTrustline.sXAG ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Activating sXAG...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Activate sXAG (Trustline)</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleQuickBuy('sXAG')}
+                  className="w-full py-1 rounded bg-slate-400/10 hover:bg-slate-300 text-slate-300 hover:text-slate-950 text-[10px] font-bold tracking-wider transition cursor-pointer border border-slate-400/30 hover:border-transparent flex items-center justify-center gap-1"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Buy sXAG</span>
+                </button>
+              )}
             </div>
           </div>
         </section>
