@@ -1,32 +1,72 @@
-# React + TypeScript + Vite
+# GlintFi - On-Chain Precious Metals & DeFi Credit Lines
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+GlintFi is a premium, decentralized wealth management application built on the Stellar network. It enables users to secure their capital by investing in tokenized precious metals (Synthetic Gold `sXAU` and Synthetic Silver `sXAG`), set up automated savings plans (Gullak Metal SIP), borrow USDC instantly against their precious metal holdings, and interact directly with Stellar Soroban smart contracts.
 
-Currently, two official plugins are available:
+Developed as part of the **Stellar Journey to Mastery - Level 2 (Yellow Belt)** program.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🌟 Submission Deliverables
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Deployed Contract Address
+*   **Contract ID (Native Stellar Asset Contract - SAC):** `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
+    *   *Description:* Represents the official Native XLM token within the Soroban smart contract layer on the Stellar Testnet.
 
-## Expanding the Oxlint configuration
+### 2. Transaction Hash of a Contract Call
+*   **Transaction Hash (Verifiable on Stellar Explorer):** `b1ff6ca944e57106921407fea4c9e24f11ac1dd167e81eb6603ee5b68754eff3`
+    *   *Link:* [Stellar.expert Testnet Explorer](https://stellar.expert/explorer/testnet/tx/b1ff6ca944e57106921407fea4c9e24f11ac1dd167e81eb6603ee5b68754eff3)
+    *   *Details:* Invokes the `transfer` method on the SAC contract, transferring native XLM from the sender to the distributor vault on-chain.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### 3. Screenshot: Wallet Options Available
+Below is a screenshot of the wallet connection options and Freighter integration interface:
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+![Wallet Options Available](./public/wallet_options.png)
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+---
+
+## 🛠️ Yellow Belt Key Features Implemented
+
+### 1. Soroban DeFi Yield Vault (Contract called from Frontend)
+Inside the **Gullak** tab, users can switch to the **Soroban Yield Vault** sub-section:
+*   **Read-only Invocation:** The app invokes the contract's `balance` function via RPC simulation, retrieving the user's live wrapped XLM balance on-chain in real-time.
+*   **Write Invocation:** The app builds, simulates, prompts signature (Freighter), and broadcasts a contract `transfer` transaction, depositing XLM directly into the yield vault.
+
+### 2. Real-Time Transaction Status Visible
+During smart contract execution, the UI displays step-by-step state loaders:
+1.  `Simulating Contract Footprint...` (fetching ledger resource footprints)
+2.  `Awaiting Freighter Signature...` (populating pop-up for user approval)
+3.  `Broadcasting to Stellar Testnet...` (submitting to Horizon node)
+4.  `Deposit Confirmed Successfully!` (rendering verifiable explorer transaction link)
+
+### 3. Explicit Error Handling (3 Error Types Handled)
+The app captures and displays user-friendly error banners for three specific failure conditions:
+*   **Freighter Signature Rejection:** Handled when the user declines the wallet signing prompt.
+*   **Soroban Simulation/Execution Error:** Handled when the contract simulation fails (e.g., due to insufficient funds or fee calculations).
+*   **Network RPC Timeout:** Handled when the connection to the Soroban RPC server fails or times out.
+
+---
+
+## 🚀 Setup and Installation
+
+### Prerequisites
+*   [Node.js](https://nodejs.org/) (v18 or higher)
+*   [Freighter Wallet Extension](https://www.freighter.app/) (connected to Testnet)
+
+### Steps
+1.  **Clone the Repository:**
+    ```bash
+    git clone https://github.com/<your-username>/GlintFi.git
+    cd GlintFi
+    ```
+2.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Run Development Server:**
+    ```bash
+    npm run dev
+    ```
+4.  **Build for Production:**
+    ```bash
+    npm run build
+    ```
