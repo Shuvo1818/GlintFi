@@ -282,6 +282,8 @@ function App() {
   const [sorobanDepositAmt, setSorobanDepositAmt] = useState<string>('');
   const [sorobanTxStatus, setSorobanTxStatus] = useState<'idle' | 'simulating' | 'signing' | 'submitting' | 'success'>('idle');
   const [sorobanTxHash, setSorobanTxHash] = useState<string>('');
+  const [shagunTxStatus, setShagunTxStatus] = useState<'idle' | 'simulating' | 'signing' | 'submitting' | 'success'>('idle');
+  const [shagunTxHash, setShagunTxHash] = useState<string>('');
   const [sips, setSips] = useState<SipSchedule[]>([]);
 
   const [loanCollateralAsset, setLoanCollateralAsset] = useState<'sXAU' | 'sXAG'>('sXAU');
@@ -1818,7 +1820,7 @@ function App() {
 
   const handleSendShagun = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!walletConnected) {
+    if (!walletConnected || !stellarAddress) {
       addToast('Wallet Not Connected', 'Please connect your Stellar wallet.', 'warning');
       return;
     }
@@ -1844,14 +1846,13 @@ function App() {
     let isRealOnChain = false;
 
     if (connectionType === 'freighter') {
-      addToast('Submitting Transaction', 'Please sign the payment in your Freighter wallet extension...', 'info');
+      setShagunTxStatus('simulating');
+      setShagunTxHash('');
+      addToast('Simulating Soroban Transaction...', `Preparing smart contract call for ${shagunAsset} transfer.`, 'info');
+
       try {
-        const horizonEndpoint = networkMode === 'public' 
-          ? 'https://horizon.stellar.org'
-          : 'https://horizon-testnet.stellar.org';
-          
-        const server = new Horizon.Server(horizonEndpoint);
-        const sourceAccount = await server.loadAccount(stellarAddress);
+        const isTestnet = networkMode === 'testnet';
+        const rpcServer = new rpc.Server('https://soroban-testnet.stellar.org');
         
         let targetAsset: Asset;
         if (shagunAsset === 'XLM') {
@@ -1860,54 +1861,87 @@ function App() {
           const config = networkMode === 'testnet' ? CANONICAL_ISSUERS.testnet : CANONICAL_ISSUERS.public;
           const issuer = config[shagunAsset as 'USDC' | 'sXAU' | 'sXAG'] || assetIssuers[shagunAsset];
           if (!issuer) {
-            throw new Error(`Trustline for ${shagunAsset} not found. Please add the asset trustline to your wallet.`);
+            throw new Error(`Trustline for ${shagunAsset} not found. Please activate this asset on the dashboard.`);
           }
           targetAsset = new Asset(shagunAsset, issuer);
         }
-        
-        const transaction = new TransactionBuilder(sourceAccount, {
-          fee: '100',
-          networkPassphrase: networkMode === 'public' 
-            ? Networks.PUBLIC 
-            : Networks.TESTNET
+
+        const networkPassphrase = isTestnet ? Networks.TESTNET : Networks.PUBLIC;
+        const contractId = targetAsset.contractId(networkPassphrase);
+        const contract = new Contract(contractId);
+
+        const amountDecimals = 10000000;
+        const amountBigInt = BigInt(Math.round(amt * amountDecimals));
+
+        const op = contract.call(
+          'transfer',
+          nativeToScVal(stellarAddress, { type: 'address' }),
+          nativeToScVal(shagunAddress, { type: 'address' }),
+          nativeToScVal(amountBigInt, { type: 'i128' })
+        );
+
+        const horizonServer = new Horizon.Server(isTestnet ? 'https://horizon-testnet.stellar.org' : 'https://horizon.stellar.org');
+        const sourceAccount = await horizonServer.loadAccount(stellarAddress);
+
+        const tx = new TransactionBuilder(sourceAccount, {
+          fee: '20000',
+          networkPassphrase
         })
-        .addOperation(
-          Operation.payment({
-            destination: shagunAddress,
-            asset: targetAsset,
-            amount: amt.toFixed(shagunAsset === 'XLM' ? 7 : 4)
-          })
-        )
-        .setTimeout(300)
-        .build();
-        
-        const unsignedXdr = transaction.toXDR();
-        const signResult = await signTransaction(unsignedXdr, {
-          networkPassphrase: networkMode === 'public' 
-            ? Networks.PUBLIC 
-            : Networks.TESTNET
-        });
-        
+          .addOperation(op)
+          .setTimeout(0)
+          .build();
+
+        const simulationResult = (await rpcServer.simulateTransaction(tx)) as any;
+
+        if (simulationResult.error) {
+          throw new Error(`Simulation failed: ${simulationResult.error}`);
+        }
+
+        const assembledTx = rpc.assembleTransaction(tx, simulationResult).build();
+
+        setShagunTxStatus('signing');
+        addToast('Awaiting Signature...', 'Please sign the contract transfer in Freighter.', 'info');
+
+        const xdr = assembledTx.toXDR();
+        const signResult = await signTransaction(xdr, { networkPassphrase });
+
         if (signResult.error) {
-          throw new Error(signResult.error);
+          throw new Error(`User rejected signing: ${signResult.error}`);
         }
-        
-        const signedTx = TransactionBuilder.fromXDR(signResult.signedTxXdr, networkMode === 'public' ? Networks.PUBLIC : Networks.TESTNET);
-        const submitResult = await server.submitTransaction(signedTx);
-        
-        if (submitResult.hash) {
-          mockHash = submitResult.hash;
-          isRealOnChain = true;
-        } else {
-          throw new Error('Transaction rejected by Horizon.');
+
+        setShagunTxStatus('submitting');
+        addToast('Submitting to Blockchain...', 'Broadcasting signed Soroban invocation transaction.', 'info');
+
+        const signedTx = TransactionBuilder.fromXDR(signResult.signedTxXdr, networkPassphrase);
+        const submitResult = await horizonServer.submitTransaction(signedTx);
+
+        if (!submitResult.hash) {
+          throw new Error('Transaction rejected by the network.');
         }
+
+        mockHash = submitResult.hash;
+        setShagunTxHash(mockHash);
+        isRealOnChain = true;
+        setShagunTxStatus('success');
+        addToast('Transfer Successful!', `Soroban contract successfully transferred ${amt} ${shagunAsset}.`, 'success');
+
       } catch (err: any) {
-        console.error('Stellar on-chain transaction failed:', err);
-        addToast('Transaction Failed', err.message || 'On-chain submission failed.', 'warning');
+        console.error("Soroban transfer invocation failed:", err);
+        let errorMsg = err.message || 'Unknown transaction failure.';
+        if (errorMsg.includes('User rejected') || errorMsg.includes('declined') || errorMsg.includes('reject')) {
+          addToast('Freighter Signature Rejected', 'You declined the transaction request inside Freighter.', 'warning');
+        } else if (errorMsg.includes('Simulation') || errorMsg.includes('HostError') || errorMsg.includes('Host invocation')) {
+          addToast('Soroban Simulation Failed', 'Smart contract execution failed. Make sure the recipient has activated this asset.', 'warning');
+        } else {
+          addToast('Network RPC Error', 'Could not establish connection to Soroban RPC node.', 'warning');
+        }
+        setShagunTxStatus('idle');
         return;
       }
+    } else {
+      mockHash = 'sim_' + Math.random().toString(16).slice(2, 10);
+      isRealOnChain = false;
     }
-
     setBalances(prev => ({
       ...prev,
       [shagunAsset]: parseFloat((prev[shagunAsset] - amt).toFixed(getFractionDigits(shagunAsset)))
@@ -1935,7 +1969,7 @@ function App() {
         <div className="space-y-3 text-left">
           <p className="text-slate-350 text-xs">
             {isRealOnChain 
-              ? 'Your payment was successfully submitted to the Stellar network and confirmed in the ledger!'
+              ? 'Your payment was successfully submitted via the Soroban Smart Contract to the Stellar network and confirmed in the ledger!'
               : 'Your transaction was sent via the Stellar network simulation with instant ledger finality.'}
           </p>
           <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-lg space-y-1.5 font-mono text-xs">
@@ -1944,7 +1978,7 @@ function App() {
             {isGiftType && shagunNote && <div className="border-t border-slate-850 pt-2"><span className="text-slate-500 block mb-0.5">Gift Note:</span> <span className="text-slate-300 italic">"{shagunNote}"</span></div>}
             {isRealOnChain && (
               <div className="flex justify-between border-t border-slate-850 pt-2">
-                <span className="text-slate-500">Stellar Hash:</span> 
+                <span className="text-slate-500">Soroban Hash:</span> 
                 <a 
                   href={`https://stellar.expert/explorer/testnet/tx/${mockHash}`} 
                   target="_blank" 
@@ -2504,10 +2538,40 @@ function App() {
               />
             </div>
           )}
+          {/* Real-time status visibility */}
+          {shagunTxStatus !== 'idle' && (
+            <div className="p-3 rounded-xl border bg-slate-950 text-xs space-y-2 border-indigo-900/40">
+              <div className="flex items-center gap-2">
+                {shagunTxStatus !== 'success' && (
+                  <span className="h-2 w-2 rounded-full bg-indigo-400 animate-ping"></span>
+                )}
+                <span className="font-semibold text-slate-300">
+                  {shagunTxStatus === 'simulating' && "Simulating Contract Footprint..."}
+                  {shagunTxStatus === 'signing' && "Awaiting Freighter Signature..."}
+                  {shagunTxStatus === 'submitting' && "Broadcasting to Stellar Testnet..."}
+                  {shagunTxStatus === 'success' && "Transfer Confirmed Successfully!"}
+                </span>
+              </div>
+              {shagunTxHash && (
+                <div className="border-t border-slate-900/60 pt-1.5 flex justify-between items-center text-[10px]">
+                  <span className="text-slate-500">TX Hash</span>
+                  <a 
+                    href={`https://stellar.expert/explorer/testnet/tx/${shagunTxHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-indigo-400 hover:underline hover:text-indigo-300"
+                  >
+                    {shagunTxHash.slice(0, 8)}...{shagunTxHash.slice(-8)} ↗
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <button 
           type="submit" 
+          disabled={shagunTxStatus !== 'idle' && shagunTxStatus !== 'success'}
           className={`w-full py-2.5 px-4 rounded-xl font-semibold transition duration-300 flex items-center justify-center gap-2 cursor-pointer ${
             walletConnected
               ? sendGiftType === 'gift' 
@@ -2516,8 +2580,19 @@ function App() {
               : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-750'
           }`}
         >
-          {sendGiftType === 'gift' ? <Gift className="w-4 h-4" /> : <Send className="w-4 h-4" />}
-          <span>{walletConnected ? sendGiftType === 'gift' ? 'Send Gift Envelope' : 'Transfer Asset' : 'Connect Wallet to Send'}</span>
+          {shagunTxStatus === 'simulating' || shagunTxStatus === 'signing' || shagunTxStatus === 'submitting' ? (
+            <Loader2 className="w-4 h-4 animate-spin text-slate-100" />
+          ) : sendGiftType === 'gift' ? (
+            <Gift className="w-4 h-4" />
+          ) : (
+            <Send className="w-4 h-4" />
+          )}
+          <span>
+            {shagunTxStatus === 'simulating' ? "Simulating..." :
+             shagunTxStatus === 'signing' ? "Signing..." :
+             shagunTxStatus === 'submitting' ? "Submitting..." :
+             walletConnected ? (sendGiftType === 'gift' ? 'Send Gift Envelope' : 'Transfer Asset') : 'Connect Wallet to Send'}
+          </span>
         </button>
       </form>
     );
