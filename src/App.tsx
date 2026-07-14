@@ -33,6 +33,7 @@ import {
   Copy
 } from 'lucide-react';
 import { isConnected, requestAccess, signTransaction as freighterSignTransaction } from '@stellar/freighter-api';
+import albedo from '@albedo-link/intent';
 import { auth, db } from './firebase';
 import { 
   createUserWithEmailAndPassword, 
@@ -1187,77 +1188,39 @@ function App() {
   }, [receivedGifts, stellarAddress, networkMode, walletConnected, historyLoaded]);
 
   // ---------------------------------------------------------
-  // Albedo Signer & Connection helpers
-  const signWithAlbedo = (xdr: string, network: string): Promise<{ signedTxXdr?: string; error?: string }> => {
-    return new Promise((resolve) => {
-      const width = 500;
-      const height = 650;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
-      
-      const popup = window.open(
-        `https://albedo.link/intent/tx?xdr=${encodeURIComponent(xdr)}&network=${network}`,
-        'albedo-sign',
-        `width=${width},height=${height},left=${left},top=${top}`
-      );
-
-      if (!popup) {
-        resolve({ error: 'Popup blocked by browser. Please allow popups.' });
-        return;
-      }
-
-      const handleMessage = (event: MessageEvent) => {
-        if (event.origin !== 'https://albedo.link') return;
-        
-        const response = event.data;
-        if (response && response.intent === 'tx') {
-          window.removeEventListener('message', handleMessage);
-          if (response.signed_envelope_xdr) {
-            resolve({ signedTxXdr: response.signed_envelope_xdr });
-          } else {
-            resolve({ error: response.error || 'User cancelled signing.' });
-          }
-        }
-      };
-
-      window.addEventListener('message', handleMessage);
-    });
-  };
-
+  // Albedo Signer & Connection helpers (using @albedo-link/intent SDK)
   const signTransaction = async (xdr: string, opts: { networkPassphrase: string }): Promise<{ signedTxXdr: string; error?: string }> => {
     if (connectionType === 'freighter') {
       return freighterSignTransaction(xdr, opts) as any;
     } else if (connectionType === 'albedo') {
       const isTestnet = opts.networkPassphrase === Networks.TESTNET;
-      return signWithAlbedo(xdr, isTestnet ? 'testnet' : 'public') as any;
+      try {
+        const res = await albedo.tx({
+          xdr,
+          network: isTestnet ? 'testnet' : 'public'
+        });
+        if (res && res.signed_envelope_xdr) {
+          return { signedTxXdr: res.signed_envelope_xdr };
+        } else {
+          return { signedTxXdr: '', error: 'Failed to receive signed transaction envelope.' };
+        }
+      } catch (err: any) {
+        console.warn('Albedo signing error:', err);
+        return { signedTxXdr: '', error: err.message || 'User cancelled signing.' };
+      }
     } else {
       return { error: 'No wallet connected.', signedTxXdr: '' };
     }
   };
 
-  const connectAlbedo = () => {
-    const width = 500;
-    const height = 650;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-    
-    const popup = window.open(
-      'https://albedo.link/intent/public-key?pubkey=1',
-      'albedo-connect',
-      `width=${width},height=${height},left=${left},top=${top}`
-    );
-
-    if (!popup) {
-      addToast('Popup Blocked', 'Please allow popups to connect Albedo.', 'warning');
-      return;
-    }
-
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== 'https://albedo.link') return;
+  const connectAlbedo = async () => {
+    try {
+      const res = await albedo.publicKey({
+        token: 'glintfi_auth_token'
+      });
       
-      const response = event.data;
-      if (response && (response.intent === 'public_key' || response.intent === 'public-key') && response.pubkey) {
-        const connectedAddress = response.pubkey;
+      if (res && res.pubkey) {
+        const connectedAddress = res.pubkey;
         setStellarAddress(connectedAddress);
         setConnectionType('albedo');
         setWalletConnected(true);
@@ -1281,11 +1244,11 @@ function App() {
           setTransactions(initialMerged);
           setHistoryLoaded(true);
         }
-        window.removeEventListener('message', handleMessage);
       }
-    };
-
-    window.addEventListener('message', handleMessage);
+    } catch (err: any) {
+      console.warn('Albedo connection error:', err);
+      addToast('Albedo Connection Failed', err.message || 'Login request rejected.', 'warning');
+    }
   };
 
   const connectFreighter = async () => {
