@@ -32,7 +32,7 @@ import {
   Trash2,
   Copy
 } from 'lucide-react';
-import { isConnected, requestAccess, signTransaction } from '@stellar/freighter-api';
+import { isConnected, requestAccess, signTransaction as freighterSignTransaction } from '@stellar/freighter-api';
 import { auth, db } from './firebase';
 import { 
   createUserWithEmailAndPassword, 
@@ -222,7 +222,7 @@ function App() {
   const [deletedTxIds, setDeletedTxIds] = useState<Set<string>>(new Set());
   const [walletConnected, setWalletConnected] = useState<boolean>(false);
   const [stellarAddress, setStellarAddress] = useState<string>('');
-  const [connectionType, setConnectionType] = useState<'freighter' | 'manual' | null>(null);
+  const [connectionType, setConnectionType] = useState<'freighter' | 'albedo' | 'manual' | null>(null);
   const [networkMode, setNetworkMode] = useState<'public' | 'testnet'>('testnet');
   const [walletModalOpen, setWalletModalOpen] = useState<boolean>(false);
   const [isFetchingBalances, setIsFetchingBalances] = useState<boolean>(false);
@@ -1187,9 +1187,107 @@ function App() {
   }, [receivedGifts, stellarAddress, networkMode, walletConnected, historyLoaded]);
 
   // ---------------------------------------------------------
-  // Connect Handlers
-  // ---------------------------------------------------------
-  
+  // Albedo Signer & Connection helpers
+  const signWithAlbedo = (xdr: string, network: string): Promise<{ signedTxXdr?: string; error?: string }> => {
+    return new Promise((resolve) => {
+      const width = 500;
+      const height = 650;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      
+      const popup = window.open(
+        `https://albedo.link/intent/tx?xdr=${encodeURIComponent(xdr)}&network=${network}`,
+        'albedo-sign',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+
+      if (!popup) {
+        resolve({ error: 'Popup blocked by browser. Please allow popups.' });
+        return;
+      }
+
+      const handleMessage = (event: MessageEvent) => {
+        if (event.origin !== 'https://albedo.link') return;
+        
+        const response = event.data;
+        if (response && response.intent === 'tx') {
+          window.removeEventListener('message', handleMessage);
+          if (response.signed_envelope_xdr) {
+            resolve({ signedTxXdr: response.signed_envelope_xdr });
+          } else {
+            resolve({ error: response.error || 'User cancelled signing.' });
+          }
+        }
+      };
+
+      window.addEventListener('message', handleMessage);
+    });
+  };
+
+  const signTransaction = async (xdr: string, opts: { networkPassphrase: string }): Promise<{ signedTxXdr: string; error?: string }> => {
+    if (connectionType === 'freighter') {
+      return freighterSignTransaction(xdr, opts) as any;
+    } else if (connectionType === 'albedo') {
+      const isTestnet = opts.networkPassphrase === Networks.TESTNET;
+      return signWithAlbedo(xdr, isTestnet ? 'testnet' : 'public') as any;
+    } else {
+      return { error: 'No wallet connected.', signedTxXdr: '' };
+    }
+  };
+
+  const connectAlbedo = () => {
+    const width = 500;
+    const height = 650;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+    
+    const popup = window.open(
+      'https://albedo.link/intent/public_key?pubkey=1',
+      'albedo-connect',
+      `width=${width},height=${height},left=${left},top=${top}`
+    );
+
+    if (!popup) {
+      addToast('Popup Blocked', 'Please allow popups to connect Albedo.', 'warning');
+      return;
+    }
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== 'https://albedo.link') return;
+      
+      const response = event.data;
+      if (response && response.intent === 'public_key' && response.pubkey) {
+        const connectedAddress = response.pubkey;
+        setStellarAddress(connectedAddress);
+        setConnectionType('albedo');
+        setWalletConnected(true);
+        localStorage.setItem('glintfi_stellar_address', connectedAddress);
+        localStorage.setItem('glintfi_connection_type', 'albedo');
+        setWalletModalOpen(false);
+        addToast('Wallet Connected', 'Connected via Albedo.', 'success');
+
+        fetchAccountBalances(connectedAddress, networkMode, true);
+        if (auth.currentUser) {
+          loadUserHistory(auth.currentUser.uid, connectedAddress, networkMode);
+        } else {
+          const storedDeleted = localStorage.getItem(`glintfi_deleted_txs_${connectedAddress}_${networkMode}`);
+          const localDeleted: string[] = storedDeleted ? JSON.parse(storedDeleted) : [];
+          const delIds = new Set<string>(localDeleted);
+          setDeletedTxIds(delIds);
+
+          const storedTxs = localStorage.getItem(`glintfi_txs_${connectedAddress}_${networkMode}`);
+          const localTxs: TransactionRecord[] = storedTxs ? JSON.parse(storedTxs) : [];
+          const initialMerged = localTxs.filter(tx => !delIds.has(tx.id) && !delIds.has(tx.hash));
+          setTransactions(initialMerged);
+          setHistoryLoaded(true);
+        }
+        window.removeEventListener('message', handleMessage);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+  };
+
   const connectFreighter = async () => {
     try {
       const hasWindowStellar = !!(window as any).stellar;
@@ -1654,7 +1752,7 @@ function App() {
 
     // Check if Freighter or manual connection
     if (connectionType === 'manual') {
-      addToast('Read-Only Address', 'Manual address connection is read-only. Connect with Freighter to execute live on-chain swaps.', 'warning');
+      addToast('Read-Only Address', 'Manual address connection is read-only. Connect with Freighter or Albedo to execute live on-chain swaps.', 'warning');
       return;
     }
 
@@ -1710,7 +1808,7 @@ function App() {
         .build();
 
       const xdr = tx.toXDR();
-      addToast('Freighter Signature Required', 'Please sign the swap transaction in Freighter.', 'info');
+      addToast('Awaiting Signature...', 'Please sign the swap transaction in your connected wallet.', 'info');
       
       const signResult = await signTransaction(xdr, {
         networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
@@ -3083,6 +3181,19 @@ function App() {
                 </div>
               </button>
 
+              <button
+                onClick={connectAlbedo}
+                className="w-full p-4 bg-slate-950 border border-slate-850 hover:border-indigo-500/50 rounded-xl text-left flex items-center justify-between transition duration-200 group"
+              >
+                <div>
+                  <h4 className="font-bold text-sm text-slate-100 group-hover:text-indigo-400 transition">Connect Albedo</h4>
+                  <p className="text-xs text-slate-400 mt-1">Access using web-based Albedo key vault (no extension needed).</p>
+                </div>
+                <div className="p-2 rounded-lg bg-slate-900 text-slate-400 group-hover:text-indigo-400">
+                  <ExternalLink className="w-4 h-4" />
+                </div>
+              </button>
+
               <div className="relative flex py-2 items-center">
                 <div className="flex-grow border-t border-slate-850"></div>
                 <span className="flex-shrink mx-3 text-slate-500 text-[10px] uppercase font-bold tracking-widest">Or View Any Key</span>
@@ -3235,9 +3346,11 @@ function App() {
                 <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
                   connectionType === 'freighter' 
                     ? 'bg-indigo-950 text-indigo-300 border border-indigo-500/20' 
+                    : connectionType === 'albedo'
+                    ? 'bg-amber-950 text-amber-300 border border-amber-500/20'
                     : 'bg-slate-900 text-slate-400 border border-slate-800'
                 }`}>
-                  {connectionType === 'freighter' ? 'Freighter' : 'Read-Only'}
+                  {connectionType === 'freighter' ? 'Freighter' : connectionType === 'albedo' ? 'Albedo' : 'Read-Only'}
                 </span>
                 <div className="flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-slate-900/50 p-1 pl-2.5 shadow-lg">
                   <div className="flex items-center gap-1.5">
