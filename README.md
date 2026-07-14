@@ -1,18 +1,66 @@
-# GlintFi - On-Chain Precious Metals & DeFi Credit Lines
+# GlintFi - Decentralized Precious Metals Hub
 
-GlintFi is a premium, decentralized wealth management application built on the Stellar network. It enables users to secure their capital by investing in tokenized precious metals (Synthetic Gold `sXAU` and Synthetic Silver `sXAG`), set up automated savings plans (Gullak Metal SIP), borrow USDC instantly against their precious metal holdings, and interact directly with Stellar Soroban smart contracts.
+## 📝 Project Description
+GlintFi is a premium, highly responsive Web3 platform built for the **Stellar Journey to Mastery 2.0 Hackathon**. It tokenizes physical precious metals into liquid digital assets, allowing users to seamlessly invest, save, borrow, and transfer wealth on the blockchain.
 
-Developed as part of the **Stellar Journey to Mastery** program.
+### 📈 Core Investment Mechanics
+GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)**. 
+- **Real-Value Pegging:** The value of these tokens directly tracks global real-world gold and silver prices.
+- **Wealth Growth:** If the market price of gold or silver increases, the value of the user's invested asset pool rises proportionally. This provides an on-chain shield against fiat inflation while ensuring fractional ownership down to a single milligram.
 
 ---
 
-## 🌟 Program Submissions (Level 1 & Level 2)
+## 🚀 Key Features
 
-### 🥇 Level 1: White Belt Deliverables
-1. **Wallet Integration**: Freighter Wallet connection and account state visualization.
-2. **Asset Activation (Trustlines)**: Instant activation and on-chain trustline registration for `sXAU` (Gold) and `sXAG` (Silver) tokens.
-3. **Precious Metal Swap Engine**: Dynamic on-chain swaps between XLM, USDC, sXAU, and sXAG.
-4. **Transaction History**: Real-time transaction record tracking and historical ledger view.
+*   **Multi-Asset Web3 Dashboard:** Provides real-time asset balance tracking for Stellar Lumens (XLM), USDC, Synthetic Gold (sXAU), and Synthetic Silver (sXAG).
+*   **Secure Wallet Authentication:** Seamless one-click wallet integration powered by the **Freighter Wallet** to authenticate users and securely fetch live public keys.
+*   **Gullak (DeFi Micro-Savings / SIP):** A traditional concept brought on-chain. It enables users to set up automated, recurring micro-investments to steadily accumulate gold or silver fractions over time without manual intervention.
+*   **DeFi Precious Metal Loans:** Allows users to secure instant liquidity (USDC) by borrowing against their tokenized gold/silver holdings as collateral, eliminating the need to liquidate their long-term precious metal investments.
+*   **Instant Asset Swap:** A built-in exchange interface utilizing the Stellar DEX for low-cost, high-speed conversion between base currencies and precious metals.
+*   **Send & Gift (P2P Transfers):** Fast peer-to-peer transferring capabilities allowing users to instantly gift or send tokenized gold and silver to any Stellar address globally with near-zero gas fees.
+*   **Live On-Chain Ledger:** An integrated real-time transaction log panel that dynamically tracks user ledger history directly from the Stellar testnet without requiring page refreshes.
+
+---
+
+## ⚙️ Setup Instructions (How to run locally)
+
+**System Requirements:**
+- **OS:** Windows, macOS, or Linux
+- **Node.js:** v16.0.0 or higher installed
+- **Git:** Installed and configured
+
+Follow these steps to run the GlintFi dashboard on your local machine:
+
+### Step 1: Clone the repository
+```bash
+git clone https://github.com/Shuvo1818/GlintFi.git
+```
+
+### Step 2: Navigate into the project directory
+```bash
+cd GlintFi
+```
+
+### Step 3: Install dependencies
+```bash
+npm install
+```
+
+### Step 4: Run the development server
+```bash
+npm run dev
+```
+
+---
+
+## 📸 Screenshots & Submission Proofs
+
+### 1. Wallet Connected State & Balances Displayed
+<img width="1920" height="1092" alt="{79520150-5615-40C1-B90A-F36CD617B6C2}" src="https://github.com/user-attachments/assets/b08308ba-a063-404e-b565-77c6487642c6" />
+
+### 2. Successful Testnet Transaction & Live Ledger Logs
+<img width="1920" height="1089" alt="{09C155A8-1CA2-4481-9659-8639971F7C8F}" src="https://github.com/user-attachments/assets/805e1a7a-eef9-4b19-9c0d-79410f9722a6" />
+
 
 ### 🥈 Level 2: Yellow Belt Deliverables
 1. **Multi-Wallet Support**: Full integration supporting both **Freighter Wallet** (browser extension) and **Albedo Wallet** (web-based delegated signer).
@@ -62,28 +110,3 @@ The app captures and displays user-friendly error banners for three specific fai
 * **Network RPC Timeout:** Handled when the connection to the Soroban RPC server fails or times out.
 
 ---
-
-## 🚀 Setup and Installation
-
-### Prerequisites
-* [Node.js](https://nodejs.org/) (v18 or higher)
-* [Freighter Wallet Extension](https://www.freighter.app/) (connected to Testnet) or an **Albedo** account.
-
-### Steps
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/<your-username>/GlintFi.git
-   cd GlintFi
-   ```
-2. **Install Dependencies:**
-   ```bash
-   npm install
-   ```
-3. **Run Development Server:**
-   ```bash
-   npm run dev
-   ```
-4. **Build for Production:**
-   ```bash
-   npm run build
-   ```
