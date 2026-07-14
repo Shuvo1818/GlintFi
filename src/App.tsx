@@ -3905,7 +3905,7 @@ function App() {
                   </div>
                 </div>
 
-                <div className="p-6 flex-1">
+                <div className="p-6 flex-1 max-h-[520px] overflow-y-auto scrollbar-thin">
                   {ledgerTab === 'activity' ? (
                     <div className="overflow-x-auto">
                       {transactions.length === 0 ? (
