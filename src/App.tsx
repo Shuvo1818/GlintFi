@@ -4045,8 +4045,8 @@ function App() {
               </section>
 
               {/* Right Column: Gullak, Loan, Send Forms (4/12) */}
-              <section id="quick-actions-panel" className="lg:col-span-4 flex flex-col justify-between">
-                <div className="glass-card rounded-2xl border border-slate-900 overflow-hidden flex flex-col h-full">
+              <section id="quick-actions-panel" className="lg:col-span-4 h-fit">
+                <div className="glass-card rounded-2xl border border-slate-900 overflow-hidden flex flex-col">
                   
                   {/* Tab Navigation header (4 columns) */}
                   <div className="grid grid-cols-4 bg-slate-950 border-b border-slate-900 p-1">
