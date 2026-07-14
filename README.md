@@ -11,7 +11,7 @@ GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)**.
 ---
 
 ## 🌐 Live Demo
-🔗 **Click here to test the live platform:** https://glintfi.vercel.app/
+🔗 **Click here to test the live platform:**https://glint-fi.vercel.app/
 ---
 
 ## 🚀 Key Features
