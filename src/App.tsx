@@ -1242,7 +1242,7 @@ function App() {
     const top = window.screen.height / 2 - height / 2;
     
     const popup = window.open(
-      'https://albedo.link/intent/public_key?pubkey=1',
+      'https://albedo.link/intent/public-key?pubkey=1',
       'albedo-connect',
       `width=${width},height=${height},left=${left},top=${top}`
     );
@@ -1256,7 +1256,7 @@ function App() {
       if (event.origin !== 'https://albedo.link') return;
       
       const response = event.data;
-      if (response && response.intent === 'public_key' && response.pubkey) {
+      if (response && (response.intent === 'public_key' || response.intent === 'public-key') && response.pubkey) {
         const connectedAddress = response.pubkey;
         setStellarAddress(connectedAddress);
         setConnectionType('albedo');
