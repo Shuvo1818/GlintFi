@@ -490,12 +490,12 @@ function App() {
 
   const handleEstablishTrustline = async (assetCode: 'USDC' | 'sXAU' | 'sXAG') => {
     if (!walletConnected || !stellarAddress) {
-      addToast('Wallet Not Connected', 'Please connect your Freighter wallet to activate assets.', 'warning');
+      addToast('Wallet Not Connected', 'Please connect your Stellar wallet to activate assets.', 'warning');
       return;
     }
 
     setIsActivatingTrustline(prev => ({ ...prev, [assetCode]: true }));
-    addToast('Activating Asset...', `Requesting Freighter signature to trust ${assetCode}.`, 'info');
+    addToast('Activating Asset...', `Requesting signature to trust ${assetCode}.`, 'info');
 
     try {
       const isTestnet = networkMode === 'testnet';
@@ -3419,7 +3419,18 @@ function App() {
           <div className="glass-card glass-card-hover rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-full blur-xl group-hover:bg-sky-500/10 transition-colors"></div>
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-semibold text-sky-400 tracking-wider uppercase">USDC</span>
+              <div className="flex flex-col gap-1 text-left">
+                <span className="text-xs font-semibold text-sky-400 tracking-wider uppercase">USDC</span>
+                {walletConnected && (
+                  <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded border inline-block w-fit ${
+                    trustlines.USDC 
+                      ? 'bg-emerald-950/80 text-emerald-400 border-emerald-500/20' 
+                      : 'bg-amber-950/80 text-amber-400 border-amber-500/20 animate-pulse'
+                  }`}>
+                    {trustlines.USDC ? 'Active' : 'Trustline Required'}
+                  </span>
+                )}
+              </div>
               <div className="p-2 rounded-xl bg-sky-950/80 border border-sky-500/20 text-sky-400">
                 <DollarSign className="w-5 h-5" />
               </div>
@@ -3430,9 +3441,30 @@ function App() {
               </span>
               <span className="text-slate-400 font-semibold ml-1.5 text-sm">USDC</span>
             </div>
-            <div className="mt-3 flex items-center justify-between pt-3 border-t border-slate-900">
-              <span className="text-xs text-slate-500">Value USD</span>
-              <span className="text-xs text-slate-300 font-mono font-medium">${(balances.USDC * livePrices.USDC).toFixed(2)}</span>
+            <div className="mt-3 flex flex-col gap-2 pt-3 border-t border-slate-900">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500">Value USD</span>
+                <span className="text-xs text-slate-300 font-mono font-medium">${(balances.USDC * livePrices.USDC).toFixed(2)}</span>
+              </div>
+              {walletConnected && !trustlines.USDC && (
+                <button
+                  onClick={() => handleEstablishTrustline('USDC')}
+                  disabled={isActivatingTrustline.USDC}
+                  className="w-full py-1.5 rounded bg-sky-500 hover:bg-sky-450 text-slate-950 text-[10px] font-bold tracking-wider transition cursor-pointer flex items-center justify-center gap-1 shadow-lg shadow-sky-500/10"
+                >
+                  {isActivatingTrustline.USDC ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Activating USDC...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Activate USDC (Trustline)</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 
