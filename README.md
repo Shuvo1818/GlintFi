@@ -119,3 +119,5 @@ The app captures and displays user-friendly error banners for three specific fai
 * **Network RPC Timeout:** Handled when the connection to the Soroban RPC server fails or times out.
 
 ---
+
+
