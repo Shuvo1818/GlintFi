@@ -600,7 +600,7 @@ function App() {
   const handleSorobanDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!walletConnected || !stellarAddress) {
-      addToast('Wallet Not Connected', 'Please connect your Freighter wallet.', 'warning');
+      addToast('Wallet Not Connected', 'Please connect your Stellar wallet.', 'warning');
       return;
     }
 
@@ -658,7 +658,7 @@ function App() {
       const assembledTx = rpc.assembleTransaction(tx, simulationResult).build();
 
       setSorobanTxStatus('signing');
-      addToast('Awaiting Signature...', 'Please sign the contract transfer in Freighter.', 'info');
+      addToast('Awaiting Signature...', 'Please sign the contract transfer in your connected wallet.', 'info');
 
       const xdr = assembledTx.toXDR();
       const signResult = await signTransaction(xdr, {
@@ -707,7 +707,7 @@ function App() {
       
       let errorMsg = err.message || 'Unknown transaction failure.';
       if (errorMsg.includes('User rejected') || errorMsg.includes('declined') || errorMsg.includes('reject')) {
-        addToast('Freighter Signature Rejected', 'You declined the transaction request inside Freighter.', 'warning');
+        addToast('Signature Rejected', 'You declined the transaction request inside your wallet.', 'warning');
       } else if (errorMsg.includes('Simulation') || errorMsg.includes('HostError') || errorMsg.includes('Host invocation')) {
         addToast('Soroban Simulation Failed', 'Smart contract execution failed. Make sure you have sufficient XLM to cover transaction costs and fees.', 'warning');
       } else {
@@ -1971,7 +1971,7 @@ function App() {
     const isGiftType = sendGiftType === 'gift';
     let isRealOnChain = false;
 
-    if (connectionType === 'freighter') {
+    if (connectionType === 'freighter' || connectionType === 'albedo') {
       setShagunTxStatus('simulating');
       setShagunTxHash('');
       addToast('Simulating Soroban Transaction...', `Preparing smart contract call for ${shagunAsset} transfer.`, 'info');
@@ -2026,7 +2026,7 @@ function App() {
         const assembledTx = rpc.assembleTransaction(tx, simulationResult).build();
 
         setShagunTxStatus('signing');
-        addToast('Awaiting Signature...', 'Please sign the contract transfer in Freighter.', 'info');
+        addToast('Awaiting Signature...', 'Please sign the contract transfer in your connected wallet.', 'info');
 
         const xdr = assembledTx.toXDR();
         const signResult = await signTransaction(xdr, { networkPassphrase });
@@ -2055,7 +2055,7 @@ function App() {
         console.error("Soroban transfer invocation failed:", err);
         let errorMsg = err.message || 'Unknown transaction failure.';
         if (errorMsg.includes('User rejected') || errorMsg.includes('declined') || errorMsg.includes('reject')) {
-          addToast('Freighter Signature Rejected', 'You declined the transaction request inside Freighter.', 'warning');
+          addToast('Signature Rejected', 'You declined the transaction request inside your wallet.', 'warning');
         } else if (errorMsg.includes('Simulation') || errorMsg.includes('HostError') || errorMsg.includes('Host invocation')) {
           addToast('Soroban Simulation Failed', 'Smart contract execution failed. Make sure the recipient has activated this asset.', 'warning');
         } else {
