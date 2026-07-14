@@ -763,7 +763,7 @@ function App() {
         ? 'https://horizon.stellar.org'
         : 'https://horizon-testnet.stellar.org';
       const server = new Horizon.Server(horizonEndpoint);
-      const paymentsResponse = await server.payments().forAccount(address).order("desc").limit(20).call();
+      const paymentsResponse = await server.operations().forAccount(address).order("desc").limit(20).call();
       
       return paymentsResponse.records.map((r: any) => {
         let isOutgoing = r.from === address;
@@ -1147,9 +1147,11 @@ function App() {
           onmessage: (op: any) => {
             console.log('Real-time ledger operation received:', op);
             addToast('On-Chain Event Received', 'Ledger updated with new on-chain operation.', 'info');
-            // Silent refresh of balances & history
-            fetchAccountBalances(stellarAddress, networkMode, true);
-            loadUserHistory(auth.currentUser?.uid || 'anonymous', stellarAddress, networkMode);
+            // Silent refresh of balances & history with a 1s delay to let Horizon finish indexing
+            setTimeout(() => {
+              fetchAccountBalances(stellarAddress, networkMode, true);
+              loadUserHistory(auth.currentUser?.uid || 'anonymous', stellarAddress, networkMode);
+            }, 1000);
           },
           onerror: (err: any) => {
             console.warn('SSE stream connection re-establishing...', err);
