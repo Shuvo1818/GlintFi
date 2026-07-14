@@ -62,7 +62,8 @@ npm run dev
 <img width="1920" height="1089" alt="{09C155A8-1CA2-4481-9659-8639971F7C8F}" src="https://github.com/user-attachments/assets/805e1a7a-eef9-4b19-9c0d-79410f9722a6" />
 
 ### 3. Multi-Wallet Connection Support (Freighter & Albedo Modal)
-<img width="1920" height="1200" alt="{EFB9F524-5B41-4383-A47C-4457CAB2B796}" src="https://github.com/user-attachments/assets/e306e3de-0d55-4609-96ee-1ea6ad3c2f98" />
+<img width="1920" height="1089" alt="{99433082-851C-49E8-94D1-C019C2C0485D}" src="https://github.com/user-attachments/assets/6d9cc019-d4db-4790-bfc7-fe7ea7b1da19" />
+
 
 
 
