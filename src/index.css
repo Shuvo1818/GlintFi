@@ -31,9 +31,7 @@ html {
 
   /* Custom glassmorphism styling */
   .glass-card {
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(13, 20, 38, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
@@ -62,22 +60,22 @@ html {
   }
 }
 
-/* Custom scrollbar styling for premium look */
-::-webkit-scrollbar {
+/* Custom scrollbar styling for premium look - only on inner scroll containers */
+.scrollbar-thin::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-::-webkit-scrollbar-track {
+.scrollbar-thin::-webkit-scrollbar-track {
   background: rgba(15, 23, 42, 0.5);
 }
 
-::-webkit-scrollbar-thumb {
+.scrollbar-thin::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
 }
 
@@ -85,7 +83,6 @@ html {
 body {
   background-color: #020617; /* slate-950 */
   color: #f8fafc;
-  overflow-x: hidden;
 }
 
 /* Custom animations */
