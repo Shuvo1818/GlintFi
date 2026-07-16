@@ -468,8 +468,8 @@ function App() {
         sXAG: sxagBal
       });
       // Trigger Soroban balance load
-      fetchSorobanBalance(address);
-      fetchVaultDepositBalance(address);
+      fetchSorobanBalance(address, silent);
+      fetchVaultDepositBalance(address, silent);
 
       if (!silent) {
         addToast('Balances Refreshed', `Ledger updated for ${address.slice(0, 4)}...${address.slice(-4)}.`, 'success');
@@ -554,9 +554,9 @@ function App() {
     }
   };
 
-  const fetchSorobanBalance = async (address: string) => {
+  const fetchSorobanBalance = async (address: string, silent = false) => {
     if (!address) return;
-    setIsFetchingSorobanBalance(true);
+    if (!silent) setIsFetchingSorobanBalance(true);
     try {
       const isTestnet = networkMode === 'testnet';
       if (!isTestnet) {
@@ -611,9 +611,9 @@ function App() {
     }
   };
 
-  const fetchVaultDepositBalance = async (address: string) => {
+  const fetchVaultDepositBalance = async (address: string, silent = false) => {
     if (!address) return;
-    setIsFetchingVaultBalance(true);
+    if (!silent) setIsFetchingVaultBalance(true);
     try {
       const docRef = doc(db, 'users', address, 'vault_balances', networkMode);
       const docSnap = await getDoc(docRef);
