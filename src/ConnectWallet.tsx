@@ -5,8 +5,6 @@ import { checkFreighterConnection, getFreighterAddress, connectAlbedoWallet } fr
 interface ConnectWalletProps {
   walletConnected: boolean;
   stellarAddress: string;
-  connectionType: 'freighter' | 'albedo' | 'manual' | null;
-  networkMode: 'public' | 'testnet';
   onConnect: (address: string, type: 'freighter' | 'albedo' | 'manual') => void;
   onDisconnect: () => void;
   addToast: (title: string, message: string, type: 'success' | 'warning' | 'info') => void;
@@ -15,8 +13,6 @@ interface ConnectWalletProps {
 export const ConnectWallet: React.FC<ConnectWalletProps> = ({
   walletConnected,
   stellarAddress,
-  connectionType,
-  networkMode,
   onConnect,
   onDisconnect,
   addToast,

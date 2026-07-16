@@ -4,7 +4,6 @@ import {
   Sparkles, 
   TrendingUp, 
   TrendingDown, 
-  Wallet, 
   RefreshCw, 
   PiggyBank, 
   Percent, 
@@ -29,10 +28,9 @@ import {
   LogOut,
   Edit2,
   Check,
-  Trash2,
-  Copy
+  Trash2
 } from 'lucide-react';
-import { checkFreighterConnection, getFreighterAddress, signWithFreighter, connectAlbedoWallet, signWithAlbedo } from './wallet';
+import { signWithFreighter, signWithAlbedo } from './wallet';
 import { ConnectWallet } from './ConnectWallet';
 import { auth, db } from './firebase';
 import { 
@@ -1365,9 +1363,8 @@ function App() {
   // Albedo / Freighter Signer wrapper
   const signTransaction = async (xdr: string, opts: { networkPassphrase: string }): Promise<{ signedTxXdr: string; error?: string }> => {
     if (connectionType === 'freighter') {
-      const isTestnet = opts.networkPassphrase === Networks.TESTNET;
       try {
-        const signedXdr = await signWithFreighter(xdr, isTestnet ? 'TESTNET' : 'PUBLIC', opts.networkPassphrase);
+        const signedXdr = await signWithFreighter(xdr, opts.networkPassphrase);
         return { signedTxXdr: signedXdr };
       } catch (err: any) {
         return { signedTxXdr: '', error: err.message || 'Freighter signing rejected.' };
@@ -3442,8 +3439,6 @@ function App() {
             <ConnectWallet
               walletConnected={walletConnected}
               stellarAddress={stellarAddress}
-              connectionType={connectionType}
-              networkMode={networkMode}
               onConnect={handleConnectWallet}
               onDisconnect={disconnectWallet}
               addToast={addToast}

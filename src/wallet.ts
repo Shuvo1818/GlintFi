@@ -7,7 +7,8 @@ import albedo from '@albedo-link/intent';
  */
 export const checkFreighterConnection = async (): Promise<boolean> => {
   try {
-    return await isConnected();
+    const res = await isConnected();
+    return !!res?.isConnected;
   } catch (err) {
     console.error('Freighter isConnected check failed:', err);
     return false;
@@ -20,11 +21,11 @@ export const checkFreighterConnection = async (): Promise<boolean> => {
  */
 export const getFreighterAddress = async (): Promise<string> => {
   try {
-    const address = await getAddress();
-    if (!address) {
+    const res = await getAddress();
+    if (!res || !res.address) {
       throw new Error('No address returned from Freighter.');
     }
-    return address;
+    return res.address;
   } catch (err: any) {
     console.error('Freighter getAddress failed:', err);
     throw err;
@@ -37,15 +38,16 @@ export const getFreighterAddress = async (): Promise<string> => {
  */
 export const signWithFreighter = async (
   xdr: string,
-  network: 'PUBLIC' | 'TESTNET',
   networkPassphrase: string
 ): Promise<string> => {
   try {
-    const signedXdr = await signTransaction(xdr, {
-      network,
+    const res = await signTransaction(xdr, {
       networkPassphrase
     });
-    return signedXdr;
+    if (!res || !res.signedTxXdr) {
+      throw new Error('Failed to receive signed transaction XDR from Freighter.');
+    }
+    return res.signedTxXdr;
   } catch (err: any) {
     console.error('Freighter signTransaction failed:', err);
     throw err;
