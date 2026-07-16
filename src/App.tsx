@@ -47,9 +47,10 @@ import {
   doc,
   setDoc,
   deleteDoc,
-  getDocs
+  getDocs,
+  getDoc
 } from 'firebase/firestore';
-import { Horizon, TransactionBuilder, Asset, Operation, Networks, Keypair, Contract, nativeToScVal, scValToNative, rpc } from '@stellar/stellar-sdk';
+import { Horizon, TransactionBuilder, Account, Asset, Operation, Networks, Keypair, Contract, nativeToScVal, scValToNative, rpc } from '@stellar/stellar-sdk';
 
 // Interfaces
 interface SipSchedule {
@@ -283,6 +284,9 @@ function App() {
   const [sorobanDepositAmt, setSorobanDepositAmt] = useState<string>('');
   const [sorobanTxStatus, setSorobanTxStatus] = useState<'idle' | 'simulating' | 'signing' | 'submitting' | 'success'>('idle');
   const [sorobanTxHash, setSorobanTxHash] = useState<string>('');
+  const [vaultDepositBalance, setVaultDepositBalance] = useState<number>(0);
+  const [isFetchingVaultBalance, setIsFetchingVaultBalance] = useState<boolean>(false);
+  const [sorobanActionTab, setSorobanActionTab] = useState<'deposit' | 'withdraw'>('deposit');
   const [shagunTxStatus, setShagunTxStatus] = useState<'idle' | 'simulating' | 'signing' | 'submitting' | 'success'>('idle');
   const [shagunTxHash, setShagunTxHash] = useState<string>('');
   const [sips, setSips] = useState<SipSchedule[]>([]);
@@ -465,6 +469,7 @@ function App() {
       });
       // Trigger Soroban balance load
       fetchSorobanBalance(address);
+      fetchVaultDepositBalance(address);
 
       if (!silent) {
         addToast('Balances Refreshed', `Ledger updated for ${address.slice(0, 4)}...${address.slice(-4)}.`, 'success');
@@ -481,6 +486,7 @@ function App() {
       }
       setBalances({ XLM: 0, USDC: 0, sXAU: 0, sXAG: 0 });
       setSorobanBalance('0.0000000');
+      setVaultDepositBalance(0);
     } finally {
       if (!silent) {
         setIsFetchingBalances(false);
@@ -567,10 +573,10 @@ function App() {
         nativeToScVal(address, { type: 'address' })
       );
 
-      const horizonServer = new Horizon.Server('https://horizon-testnet.stellar.org');
-      const sourceAcc = await horizonServer.loadAccount(address);
+      // Use dummy Account for simulation to avoid slow loadAccount API call
+      const dummySource = new Account(address, "0");
       
-      const tx = new TransactionBuilder(sourceAcc, {
+      const tx = new TransactionBuilder(dummySource, {
         fee: '10000',
         networkPassphrase: Networks.TESTNET
       })
@@ -578,7 +584,15 @@ function App() {
         .setTimeout(0)
         .build();
 
-      const result = (await rpcServer.simulateTransaction(tx)) as any;
+      // 3-second simulation timeout wrapper
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('RPC Simulation Timeout')), 3000)
+      );
+
+      const result = (await Promise.race([
+        rpcServer.simulateTransaction(tx),
+        timeoutPromise
+      ])) as any;
       
       if (result.error) {
         throw new Error(result.error);
@@ -594,6 +608,26 @@ function App() {
       setSorobanBalance(balances.XLM.toFixed(7));
     } finally {
       setIsFetchingSorobanBalance(false);
+    }
+  };
+
+  const fetchVaultDepositBalance = async (address: string) => {
+    if (!address) return;
+    setIsFetchingVaultBalance(true);
+    try {
+      const docRef = doc(db, 'users', address, 'vault_balances', networkMode);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setVaultDepositBalance(docSnap.data().balance || 0);
+      } else {
+        setVaultDepositBalance(0);
+      }
+    } catch (err) {
+      console.warn("fetchVaultDepositBalance failed:", err);
+      const local = localStorage.getItem(`glintfi_vault_${address}_${networkMode}`);
+      setVaultDepositBalance(local ? parseFloat(local) : 0);
+    } finally {
+      setIsFetchingVaultBalance(false);
     }
   };
 
@@ -695,11 +729,19 @@ function App() {
         status: 'Success'
       };
 
+      // Update Firestore vault balance
+      const newBal = parseFloat((vaultDepositBalance + amt).toFixed(4));
+      setVaultDepositBalance(newBal);
+      setDoc(doc(db, 'users', stellarAddress, 'vault_balances', networkMode), { balance: newBal })
+        .catch(e => console.error("Firestore balance write failed:", e));
+      localStorage.setItem(`glintfi_vault_${stellarAddress}_${networkMode}`, newBal.toString());
+
       setTransactions(prev => [newTx, ...prev]);
       saveTransactionToFirestore(newTx);
       setSorobanDepositAmt('');
 
       fetchSorobanBalance(stellarAddress);
+      fetchVaultDepositBalance(stellarAddress);
       fetchAccountBalances(stellarAddress, networkMode, true);
 
     } catch (err: any) {
@@ -712,6 +754,136 @@ function App() {
         addToast('Soroban Simulation Failed', 'Smart contract execution failed. Make sure you have sufficient XLM to cover transaction costs and fees.', 'warning');
       } else {
         addToast('Network RPC Error', 'Could not establish connection to Soroban RPC node. Please check your internet connection.', 'warning');
+      }
+      setSorobanTxStatus('idle');
+    }
+  };
+
+  const handleSorobanWithdraw = async (amountStr: string) => {
+    if (!walletConnected || !stellarAddress) {
+      addToast('Wallet Not Connected', 'Please connect your Stellar wallet.', 'warning');
+      return;
+    }
+
+    const amt = parseFloat(amountStr);
+    if (isNaN(amt) || amt <= 0) {
+      addToast('Invalid Amount', 'Please set a valid withdrawal quantity.', 'warning');
+      return;
+    }
+
+    if (vaultDepositBalance < amt) {
+      addToast('Insufficient Vault Balance', 'Your vault deposit balance is less than the requested withdrawal amount.', 'warning');
+      return;
+    }
+
+    setSorobanTxStatus('simulating');
+    setSorobanTxHash('');
+    addToast('Initiating Vault Withdrawal...', 'Building Soroban withdrawal transaction.', 'info');
+
+    try {
+      const isTestnet = networkMode === 'testnet';
+      const rpcServer = new rpc.Server('https://soroban-testnet.stellar.org');
+      const horizonServer = new Horizon.Server(isTestnet ? 'https://horizon-testnet.stellar.org' : 'https://horizon.stellar.org');
+      const config = isTestnet ? CANONICAL_ISSUERS.testnet : CANONICAL_ISSUERS.public;
+      const distributorAddress = config.distributor;
+      const distributorSecret = config.distributorSecret;
+
+      if (!distributorSecret) {
+        throw new Error('Withdrawals are currently supported on Testnet.');
+      }
+
+      const sacContractId = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
+      const contract = new Contract(sacContractId);
+
+      const amountInStroops = BigInt(Math.round(amt * 10000000));
+
+      // Build the transfer operation: distributor transfers XLM to user
+      const op = contract.call(
+        'transfer',
+        nativeToScVal(distributorAddress, { type: 'address' }),
+        nativeToScVal(stellarAddress, { type: 'address' }),
+        nativeToScVal(amountInStroops, { type: 'i128' })
+      );
+
+      // Build transaction with user as source, but co-signed by distributor
+      const userAcc = await horizonServer.loadAccount(stellarAddress);
+      
+      const tx = new TransactionBuilder(userAcc, {
+        fee: '20000',
+        networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
+      })
+        .addOperation(op)
+        .setTimeout(0)
+        .build();
+
+      const simulationResult = (await rpcServer.simulateTransaction(tx)) as any;
+      if (simulationResult.error) {
+        throw new Error(`Simulation failed: ${simulationResult.error}`);
+      }
+
+      const assembledTx = rpc.assembleTransaction(tx, simulationResult).build();
+
+      setSorobanTxStatus('signing');
+      addToast('Awaiting Signature...', 'Please sign the withdrawal transaction in your wallet.', 'info');
+      const xdr = assembledTx.toXDR();
+      
+      const signResult = await signTransaction(xdr, {
+        networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
+      });
+
+      if (signResult.error) {
+        throw new Error(signResult.error);
+      }
+
+      // Add distributor signature
+      const finalTx = TransactionBuilder.fromXDR(signResult.signedTxXdr, isTestnet ? Networks.TESTNET : Networks.PUBLIC);
+      const distributorKeypair = Keypair.fromSecret(distributorSecret);
+      finalTx.sign(distributorKeypair);
+
+      setSorobanTxStatus('submitting');
+      addToast('Submitting to Blockchain...', 'Broadcasting transaction to Stellar Testnet.', 'info');
+      const result = await horizonServer.submitTransaction(finalTx);
+      
+      if (!result.hash) {
+        throw new Error('Transaction rejected by the network.');
+      }
+
+      const txHash = result.hash;
+      setSorobanTxHash(txHash);
+      setSorobanTxStatus('success');
+
+      // Update Firestore balance
+      const newBal = parseFloat((vaultDepositBalance - amt).toFixed(4));
+      setVaultDepositBalance(newBal);
+      await setDoc(doc(db, 'users', stellarAddress, 'vault_balances', networkMode), { balance: newBal });
+      localStorage.setItem(`glintfi_vault_${stellarAddress}_${networkMode}`, newBal.toString());
+
+      // Save transaction record
+      const newTx: TransactionRecord = {
+        id: 'tx-' + Date.now(),
+        type: 'Transfer',
+        description: `Soroban Yield Withdrawal of ${amt} XLM`,
+        amount: amt.toFixed(4),
+        asset: 'XLM',
+        date: formatLocalTime(new Date()),
+        hash: txHash,
+        status: 'Success'
+      };
+
+      setTransactions(prev => [newTx, ...prev]);
+      saveTransactionToFirestore(newTx);
+      addToast('Withdrawal Confirmed!', `${amt} XLM withdrawn successfully from the vault.`, 'success');
+
+      fetchSorobanBalance(stellarAddress);
+      fetchVaultDepositBalance(stellarAddress);
+      fetchAccountBalances(stellarAddress, networkMode, true);
+    } catch (err: any) {
+      console.error("Soroban withdrawal failed:", err);
+      let errorMsg = err.message || 'Unknown transaction failure.';
+      if (errorMsg.includes('User rejected') || errorMsg.includes('declined') || errorMsg.includes('reject')) {
+        addToast('Signature Rejected', 'You declined the transaction request inside your wallet.', 'warning');
+      } else {
+        addToast('Withdrawal Failed', errorMsg, 'warning');
       }
       setSorobanTxStatus('idle');
     }
@@ -1880,9 +2052,9 @@ function App() {
     addToast('Schedule Removed', 'Recurring savings plan cancelled.', 'info');
   };
 
-  const handleLoan = (e: React.FormEvent) => {
+  const handleLoan = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!walletConnected) {
+    if (!walletConnected || !stellarAddress) {
       addToast('Wallet Not Connected', 'Wallet required to lock collateral.', 'warning');
       return;
     }
@@ -1908,43 +2080,132 @@ function App() {
     }
 
     const loanValue = loanLimit;
-    const mockHash = 'tx_' + Math.random().toString(16).slice(2, 10);
+    if (loanValue <= 0) {
+      addToast('Invalid Loan Limit', 'Collateral value is too small to borrow USDC.', 'warning');
+      return;
+    }
 
-    setBalances(prev => ({
-      ...prev,
-      [loanCollateralAsset]: parseFloat((prev[loanCollateralAsset] - colAmt).toFixed(4)),
-      USDC: parseFloat((prev.USDC + loanValue).toFixed(2))
-    }));
+    // Check manual connection
+    if (connectionType === 'manual') {
+      addToast('Read-Only Address', 'Manual address connection is read-only. Connect with Freighter or Albedo to borrow USDC.', 'warning');
+      return;
+    }
 
-    const newTx: TransactionRecord = {
-      id: 'tx-' + Date.now(),
-      type: 'Loan',
-      description: `Locked ${colAmt.toFixed(2)} ${loanCollateralAsset} for loan`,
-      amount: loanValue.toFixed(2),
-      asset: 'USDC',
-      date: formatLocalTime(new Date()),
-      hash: mockHash,
-      status: 'Success'
-    };
-    setTransactions(prev => [newTx, ...prev]);
-    saveTransactionToFirestore(newTx);
+    addToast('Initiating On-Chain Loan...', 'Building collateral lock and loan release transaction.', 'info');
 
-    setActiveModal({
-      type: 'success',
-      title: 'Decentralized Loan Disbursed',
-      details: (
-        <div className="space-y-3 text-left">
-          <p className="text-slate-350 text-xs">Your collateral is locked in escrow. USDC has been minted and sent to your address.</p>
-          <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-lg space-y-1.5 font-mono text-xs">
-            <div className="flex justify-between"><span className="text-slate-500">Locked Collateral:</span> <span className="text-slate-100 font-semibold">{colAmt} {loanCollateralAsset}</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Disbursed Principal:</span> <span className="text-emerald-400 font-semibold">+{loanValue.toFixed(2)} USDC</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Interest APY:</span> <span className="text-amber-400">4.5% Fixed APY</span></div>
-            <div className="flex justify-between"><span className="text-slate-500">Liquidation Price:</span> <span className="text-rose-400 font-semibold">${(livePrices[loanCollateralAsset] * 0.75).toFixed(2)} / oz</span></div>
+    try {
+      const isTestnet = networkMode === 'testnet';
+      const horizonEndpoint = isTestnet 
+        ? 'https://horizon-testnet.stellar.org'
+        : 'https://horizon.stellar.org';
+      const server = new Horizon.Server(horizonEndpoint);
+
+      const userAcc = await server.loadAccount(stellarAddress);
+      
+      const config = isTestnet ? CANONICAL_ISSUERS.testnet : CANONICAL_ISSUERS.public;
+      const distributorAddress = config.distributor;
+      const distributorSecret = config.distributorSecret;
+
+      if (!distributorSecret) {
+        throw new Error('On-chain loans are currently supported on Testnet.');
+      }
+
+      // Build assets
+      const getAsset = (code: AssetCode) => {
+        if (code === 'XLM') return Asset.native();
+        const issuer = config[code as 'USDC' | 'sXAU' | 'sXAG'];
+        return new Asset(code, issuer);
+      };
+
+      const collateralAsset = getAsset(loanCollateralAsset);
+      const usdcAsset = getAsset('USDC');
+
+      // Construct a multi-op transaction:
+      // Op 1: User sends collateral (sXAU/sXAG) to distributor
+      // Op 2: Distributor sends USDC to user (Source: distributor)
+      const tx = new TransactionBuilder(userAcc, {
+        fee: '20000', // Double fee for 2 operations
+        networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
+      })
+        .addOperation(Operation.payment({
+          destination: distributorAddress,
+          asset: collateralAsset,
+          amount: colAmt.toFixed(getFractionDigits(loanCollateralAsset))
+        }))
+        .addOperation(Operation.payment({
+          source: distributorAddress,
+          destination: stellarAddress,
+          asset: usdcAsset,
+          amount: loanValue.toFixed(2)
+        }))
+        .setTimeout(0)
+        .build();
+
+      const xdr = tx.toXDR();
+      addToast('Awaiting Signature...', 'Please sign the loan contract inside your wallet.', 'info');
+      
+      const signResult = await signTransaction(xdr, {
+        networkPassphrase: isTestnet ? Networks.TESTNET : Networks.PUBLIC
+      });
+
+      if (signResult.error) {
+        throw new Error(signResult.error);
+      }
+
+      // Deserialize transaction and add distributor signature
+      const finalTx = TransactionBuilder.fromXDR(signResult.signedTxXdr, isTestnet ? Networks.TESTNET : Networks.PUBLIC);
+      const distributorKeypair = Keypair.fromSecret(distributorSecret);
+      finalTx.sign(distributorKeypair);
+
+      addToast('Disbursing Loan...', 'Broadcasting transaction and unlocking USDC.', 'info');
+      const result = await server.submitTransaction(finalTx);
+      
+      const txHash = result.hash;
+
+      const newTx: TransactionRecord = {
+        id: 'tx-' + Date.now(),
+        type: 'Loan',
+        description: `Locked ${colAmt.toFixed(4)} ${loanCollateralAsset} for loan`,
+        amount: loanValue.toFixed(2),
+        asset: 'USDC',
+        date: formatLocalTime(new Date()),
+        hash: txHash,
+        status: 'Success'
+      };
+
+      setTransactions(prev => [newTx, ...prev]);
+      saveTransactionToFirestore(newTx);
+      
+      // Update local state balances
+      setBalances(prev => ({
+        ...prev,
+        [loanCollateralAsset]: parseFloat((prev[loanCollateralAsset] - colAmt).toFixed(4)),
+        USDC: parseFloat((prev.USDC + loanValue).toFixed(2))
+      }));
+
+      setActiveModal({
+        type: 'success',
+        title: 'Decentralized Loan Disbursed',
+        details: (
+          <div className="space-y-3 text-left">
+            <p className="text-slate-350 text-xs font-sans">Your collateral is locked in vault escrow. USDC has been successfully disbursed to your address.</p>
+            <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-lg space-y-1.5 font-mono text-[10px]">
+              <div className="flex justify-between"><span className="text-slate-500">Locked Collateral:</span> <span className="text-slate-100 font-semibold">{colAmt} {loanCollateralAsset}</span></div>
+              <div className="flex justify-between"><span className="text-slate-500">Disbursed Principal:</span> <span className="text-emerald-400 font-semibold">+{loanValue.toFixed(2)} USDC</span></div>
+              <div className="flex justify-between"><span className="text-slate-500">Interest APY:</span> <span className="text-amber-400">4.5% Fixed APY</span></div>
+              <div className="flex justify-between"><span className="text-slate-500">Liquidation Price:</span> <span className="text-rose-400 font-semibold">${(livePrices[loanCollateralAsset] * 0.75).toFixed(2)} / oz</span></div>
+              <div className="flex justify-between"><span className="text-slate-500">Explorer Link:</span> <a href={`https://stellar.expert/explorer/testnet/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="text-indigo-400 underline">View on StellarExpert</a></div>
+            </div>
           </div>
-        </div>
-      )
-    });
-    setLoanCollateralAmt('');
+        )
+      });
+      
+      setLoanCollateralAmt('');
+      fetchAccountBalances(stellarAddress, networkMode, true);
+    } catch (err: any) {
+      console.error("On-chain loan disbursal failed:", err);
+      addToast('Loan Disbursal Failed', err.message || 'On-chain execution failed.', 'warning');
+    }
   };
 
   const handleSendShagun = async (e: React.FormEvent) => {
@@ -2379,87 +2640,148 @@ function App() {
               </button>
             </form>
           ) : (
-            <form onSubmit={handleSorobanDeposit} className="space-y-3.5">
-              <div className="flex justify-between items-center">
-                <h2 className="text-base font-bold text-slate-100">Stellar Soroban Vault</h2>
-                <span className="px-2 py-0.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold">
-                  On-Chain Yield
-                </span>
-              </div>
-
-              {/* Soroban Live contract info */}
-              <div className="p-3 bg-slate-950/80 border border-slate-900 rounded-xl space-y-2">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500">Live Smart Contract</span>
-                  <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/5 px-1.5 py-0.5 rounded border border-indigo-500/10">SAC Native XLM</span>
-                </div>
-                <div className="border-t border-slate-900/60 my-1"></div>
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (sorobanActionTab === 'deposit') {
+                  handleSorobanDeposit(e);
+                } else {
+                  handleSorobanWithdraw(sorobanDepositAmt);
+                }
+              }} 
+              className="space-y-3 flex flex-col justify-between h-full"
+            >
+              <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-slate-400">On-Chain Balance</span>
-                  <div className="flex items-center gap-1.5 font-mono text-slate-200 font-bold text-sm">
-                    {isFetchingSorobanBalance ? (
-                      <span className="animate-pulse text-slate-500 text-xs">Syncing...</span>
-                    ) : (
-                      <>
-                        <span>{parseFloat(sorobanBalance).toFixed(4)}</span>
-                        <span className="text-[10px] text-slate-500 font-sans">XLM</span>
-                      </>
-                    )}
-                  </div>
+                  <h2 className="text-base font-bold text-slate-100">Stellar Soroban Vault</h2>
+                  <span className="px-2 py-0.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold">
+                    On-Chain Yield
+                  </span>
                 </div>
-              </div>
 
-              {/* Deposit Inputs */}
-              <div className="p-3 bg-slate-950 border border-slate-900 rounded-xl space-y-1">
-                <span className="block text-[10px] text-slate-500">Deposit Quantity (XLM)</span>
-                <div className="flex items-center">
-                  <input 
-                    type="number" 
-                    value={sorobanDepositAmt}
-                    onChange={(e) => setSorobanDepositAmt(e.target.value)}
-                    placeholder="5.0"
-                    step="0.0001"
-                    className="bg-transparent border-none text-slate-100 font-mono text-base w-full focus:outline-none placeholder:text-slate-650"
-                  />
-                  <span className="text-xs font-bold text-slate-500 font-mono">XLM</span>
+                {/* Deposit / Withdraw switcher */}
+                <div className="grid grid-cols-2 bg-slate-950 border border-slate-905 p-0.5 rounded-lg text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSorobanActionTab('deposit');
+                      setSorobanDepositAmt('');
+                      setSorobanTxStatus('idle');
+                    }}
+                    className={`py-1.5 rounded text-[10px] font-bold uppercase transition cursor-pointer ${
+                      sorobanActionTab === 'deposit' 
+                        ? 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-extrabold'
+                        : 'text-slate-500 hover:text-slate-350'
+                    }`}
+                  >
+                    Deposit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSorobanActionTab('withdraw');
+                      setSorobanDepositAmt('');
+                      setSorobanTxStatus('idle');
+                    }}
+                    className={`py-1.5 rounded text-[10px] font-bold uppercase transition cursor-pointer ${
+                      sorobanActionTab === 'withdraw' 
+                        ? 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-extrabold'
+                        : 'text-slate-500 hover:text-slate-350'
+                    }`}
+                  >
+                    Withdraw
+                  </button>
                 </div>
-              </div>
 
-              {/* Real-time status visibility */}
-              {sorobanTxStatus !== 'idle' && (
-                <div className="p-3 rounded-xl border bg-slate-950 text-xs space-y-2 border-indigo-900/40">
-                  <div className="flex items-center gap-2">
-                    {sorobanTxStatus !== 'success' && (
-                      <span className="h-2 w-2 rounded-full bg-indigo-400 animate-ping"></span>
-                    )}
-                    <span className="font-semibold text-slate-300">
-                      {sorobanTxStatus === 'simulating' && "Simulating Contract Footprint..."}
-                      {sorobanTxStatus === 'signing' && "Awaiting Freighter Signature..."}
-                      {sorobanTxStatus === 'submitting' && "Broadcasting to Stellar Testnet..."}
-                      {sorobanTxStatus === 'success' && "Deposit Confirmed Successfully!"}
-                    </span>
+                {/* Soroban Live contract info */}
+                <div className="p-3 bg-slate-950/80 border border-slate-900 rounded-xl space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Live Smart Contract</span>
+                    <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/5 px-1.5 py-0.5 rounded border border-indigo-500/10">SAC Native XLM</span>
                   </div>
-                  {sorobanTxHash && (
-                    <div className="border-t border-slate-900/60 pt-1.5 flex justify-between items-center text-[10px]">
-                      <span className="text-slate-500">TX Hash</span>
-                      <a 
-                        href={`https://stellar.expert/explorer/testnet/tx/${sorobanTxHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-mono text-indigo-400 hover:underline hover:text-indigo-300"
-                      >
-                        {sorobanTxHash.slice(0, 8)}...{sorobanTxHash.slice(-8)} ↗
-                      </a>
+                  <div className="border-t border-slate-900/60 my-1"></div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-sans">On-Chain Wallet Balance</span>
+                    <div className="flex items-center gap-1 font-mono text-slate-200 font-bold">
+                      {isFetchingSorobanBalance ? (
+                        <span className="animate-pulse text-slate-500 text-[10px]">Syncing...</span>
+                      ) : (
+                        <>
+                          <span>{parseFloat(sorobanBalance).toFixed(4)}</span>
+                          <span className="text-[9px] text-slate-500 font-sans">XLM</span>
+                        </>
+                      )}
                     </div>
-                  )}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-sans">Vault Deposited Balance</span>
+                    <div className="flex items-center gap-1 font-mono text-indigo-400 font-bold">
+                      {isFetchingVaultBalance ? (
+                        <span className="animate-pulse text-slate-500 text-[10px]">Syncing...</span>
+                      ) : (
+                        <>
+                          <span>{vaultDepositBalance.toFixed(4)}</span>
+                          <span className="text-[9px] text-slate-500 font-sans">XLM</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* Quantity input */}
+                <div className="p-3 bg-slate-950 border border-slate-900 rounded-xl space-y-1">
+                  <span className="block text-[10px] text-slate-500">
+                    {sorobanActionTab === 'deposit' ? 'Deposit Quantity (XLM)' : 'Withdraw Quantity (XLM)'}
+                  </span>
+                  <div className="flex items-center">
+                    <input 
+                      type="number" 
+                      value={sorobanDepositAmt}
+                      onChange={(e) => setSorobanDepositAmt(e.target.value)}
+                      placeholder={sorobanActionTab === 'deposit' ? '5.0' : '0.0'}
+                      step="0.0001"
+                      className="bg-transparent border-none text-slate-100 font-mono text-base w-full focus:outline-none placeholder:text-slate-650"
+                    />
+                    <span className="text-xs font-bold text-slate-500 font-mono">XLM</span>
+                  </div>
+                </div>
+
+                {/* Real-time status visibility */}
+                {sorobanTxStatus !== 'idle' && (
+                  <div className="p-3 rounded-xl border bg-slate-950 text-xs space-y-2 border-indigo-900/40">
+                    <div className="flex items-center gap-2">
+                      {sorobanTxStatus !== 'success' && (
+                        <span className="h-2 w-2 rounded-full bg-indigo-400 animate-ping"></span>
+                      )}
+                      <span className="font-semibold text-slate-300">
+                        {sorobanTxStatus === 'simulating' && "Simulating Contract Footprint..."}
+                        {sorobanTxStatus === 'signing' && "Awaiting Wallet Signature..."}
+                        {sorobanTxStatus === 'submitting' && "Broadcasting to Stellar Testnet..."}
+                        {sorobanTxStatus === 'success' && (sorobanActionTab === 'deposit' ? "Deposit Confirmed Successfully!" : "Withdrawal Confirmed Successfully!")}
+                      </span>
+                    </div>
+                    {sorobanTxHash && (
+                      <div className="border-t border-slate-900/60 pt-1.5 flex justify-between items-center text-[10px]">
+                        <span className="text-slate-500">TX Hash</span>
+                        <a 
+                          href={`https://stellar.expert/explorer/testnet/tx/${sorobanTxHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-indigo-400 hover:underline hover:text-indigo-300"
+                        >
+                          {sorobanTxHash.slice(0, 8)}...{sorobanTxHash.slice(-8)} ↗
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <button 
                 type="submit" 
                 disabled={sorobanTxStatus !== 'idle' && sorobanTxStatus !== 'success'}
                 className={`w-full py-2.5 px-4 rounded-xl font-semibold transition duration-300 flex items-center justify-center gap-2 cursor-pointer ${
-                  walletConnected
+                  walletConnected && parseFloat(sorobanDepositAmt) > 0
                     ? 'bg-indigo-500 hover:bg-indigo-450 text-slate-950 font-bold shadow-lg shadow-indigo-500/15'
                     : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-750'
                 }`}
@@ -2469,7 +2791,7 @@ function App() {
                   {sorobanTxStatus === 'simulating' ? "Simulating..." :
                    sorobanTxStatus === 'signing' ? "Signing..." :
                    sorobanTxStatus === 'submitting' ? "Submitting..." :
-                   "Deposit to Soroban Vault"}
+                   (sorobanActionTab === 'deposit' ? "Deposit to Soroban Vault" : "Withdraw from Soroban Vault")}
                 </span>
               </button>
             </form>
