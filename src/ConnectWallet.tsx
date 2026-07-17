@@ -111,8 +111,9 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
 
       {/* Connection Modal Overlay */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex justify-center items-start sm:items-center z-50 p-4 overflow-y-auto animate-fadeIn">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 my-auto shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 overflow-y-auto animate-fadeIn">
+          <div className="min-h-full flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
             <div className="flex justify-between items-center pb-2 border-b border-slate-850">
               <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
                 <Wallet className="w-5 h-5 text-indigo-400" />
@@ -184,6 +185,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
             </div>
           </div>
         </div>
+      </div>
       )}
     </div>
   );
