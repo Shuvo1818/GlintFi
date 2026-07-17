@@ -14,7 +14,7 @@ fn test_deposit_and_withdraw() {
     let token_admin = Address::generate(&env);
 
     // Register a mock token contract to use
-    let token_contract_id = env.register_stellar_asset_contract(token_admin);
+    let token_contract_id = env.create_asset_contract(token_admin);
     let token_client = token::StellarAssetClient::new(&env, &token_contract_id);
     let token = token::Client::new(&env, &token_contract_id);
 
@@ -83,7 +83,7 @@ fn test_withdraw_insufficient_balance_should_panic() {
     let user = Address::generate(&env);
     let token_admin = Address::generate(&env);
 
-    let token_contract_id = env.register_stellar_asset_contract(token_admin);
+    let token_contract_id = env.create_asset_contract(token_admin);
     let token_client = token::StellarAssetClient::new(&env, &token_contract_id);
 
     token_client.mint(&user, &1000);
