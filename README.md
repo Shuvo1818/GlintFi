@@ -155,4 +155,11 @@ The app captures and displays user-friendly error banners for three specific fai
 6. **Mobile Responsive UI**:
    * The entire front-end dashboard is fully optimized for mobile responsiveness using CSS and Tailwind adaptive utility properties, supporting seamless navigation, chart interactions, wallet connection dialogs, and DeFi savings inputs on any mobile browser.
 
+---
+
+### 📸 Proof of Successful Build & CI/CD Pipeline
+Below is the verification screenshot showing the successful GitHub Actions run and all 4 Vitest unit tests passing green:
+
+![CI/CD Pipeline Success](cicd_success.png)
+
 
