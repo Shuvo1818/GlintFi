@@ -44,6 +44,9 @@ jobs:
         curl -fsSL https://github.com/stellar/stellar-cli/raw/main/install.sh | sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
+    - name: Optimize Contract WASM
+      run: stellar contract optimize --wasm target/wasm32-unknown-unknown/release/gullak_vault.wasm
+
     - name: Configure Network
       run: |
         stellar network add --rpc-url https://soroban-testnet.stellar.org --network-passphrase "Test SDF Network ; September 2015" testnet
@@ -57,7 +60,7 @@ jobs:
         echo "Funding account via Friendbot..."
         curl -fsSL "https://friendbot.stellar.org/?addr=$DEPLOYER_ADDR"
         
-        CONTRACT_ID=$(stellar contract deploy --wasm target/wasm32-unknown-unknown/release/gullak_vault.wasm --source deployer --network testnet)
+        CONTRACT_ID=$(stellar contract deploy --wasm target/wasm32-unknown-unknown/release/gullak_vault.optimized.wasm --source deployer --network testnet)
         echo "=========================================================="
         echo "SUCCESSFULLY DEPLOYED CUSTOM SMART CONTRACT TO TESTNET!"
         echo "Deployed Contract ID: $CONTRACT_ID"
