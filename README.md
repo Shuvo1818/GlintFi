@@ -166,4 +166,16 @@ The app captures and displays user-friendly error banners for three specific fai
 
 ---
 
+### 📸 Proof of Successful Build & CI/CD Pipeline
+Below is the verification screenshot showing the successful GitHub Actions run and all 4 Vitest unit tests passing green:
+
+<img src="cicd_success.png" alt="CI/CD Pipeline Success" width="650" style="max-width: 100%; border-radius: 8px; border: 1px solid #1e293b;" />
+
+---
+
+### 📱 Mobile Responsive UI Proof
+Below is the screenshot showing the fully responsive header, layout, and modal alignment on mobile viewports:
+
+<img src="mobile_responsive.png" alt="Mobile Responsive UI" width="280" style="max-width: 100%; border-radius: 12px; border: 1px solid #1e293b;" />
+
 
