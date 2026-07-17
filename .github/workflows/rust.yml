@@ -38,7 +38,9 @@ jobs:
       run: cargo build --target wasm32-unknown-unknown --release --manifest-path Cargo.toml
 
     - name: Setup Stellar CLI
-      uses: stellar/stellar-cli@main
+      run: |
+        curl -fsSL https://github.com/stellar/stellar-cli/raw/main/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: Configure Network
       run: |
