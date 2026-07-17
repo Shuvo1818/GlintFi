@@ -1,6 +1,7 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{testutils::Address as _, testutils::Env as _, Env};
+use soroban_sdk::{testutils::Address as _, Env};
+use soroban_env_common::env::Env as _;
 
 #[test]
 fn test_deposit_and_withdraw() {
