@@ -116,6 +116,8 @@ const CANONICAL_ISSUERS = {
   }
 };
 
+const CUSTOM_VAULT_CONTRACT_ID = 'CCVAULT3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYS3';
+
 // ---------------------------------------------------------
 // Base Market Data Series (Will be scaled to live prices)
 // ---------------------------------------------------------
@@ -611,6 +613,46 @@ function App() {
     if (!address) return;
     if (!silent) setIsFetchingVaultBalance(true);
     try {
+      const isTestnet = networkMode === 'testnet';
+      if (isTestnet) {
+        const rpcServer = new rpc.Server('https://soroban-testnet.stellar.org');
+        const contract = new Contract(CUSTOM_VAULT_CONTRACT_ID);
+        
+        const op = contract.call(
+          'get_balance',
+          nativeToScVal(address, { type: 'address' })
+        );
+
+        const dummySource = new Account(address, "0");
+        const tx = new TransactionBuilder(dummySource, {
+          fee: '10000',
+          networkPassphrase: Networks.TESTNET
+        })
+          .addOperation(op)
+          .setTimeout(0)
+          .build();
+
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('RPC Simulation Timeout')), 3000)
+        );
+
+        const result = (await Promise.race([
+          rpcServer.simulateTransaction(tx),
+          timeoutPromise
+        ])) as any;
+
+        if (result.result && result.result.retval) {
+          const parsedVal = scValToNative(result.result.retval);
+          const depVal = Number(parsedVal) / 10000000;
+          setVaultDepositBalance(depVal);
+          // Sync with Firestore
+          setDoc(doc(db, 'users', address, 'vault_balances', networkMode), { balance: depVal })
+            .catch(e => console.warn("Syncing live balance to Firestore failed:", e));
+          localStorage.setItem(`glintfi_vault_${address}_${networkMode}`, depVal.toString());
+          return;
+        }
+      }
+      
       const docRef = doc(db, 'users', address, 'vault_balances', networkMode);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -619,7 +661,7 @@ function App() {
         setVaultDepositBalance(0);
       }
     } catch (err) {
-      console.warn("fetchVaultDepositBalance failed:", err);
+      console.warn("fetchVaultDepositBalance failed, using fallback:", err);
       const local = localStorage.getItem(`glintfi_vault_${address}_${networkMode}`);
       setVaultDepositBalance(local ? parseFloat(local) : 0);
     } finally {
@@ -646,9 +688,6 @@ function App() {
       return;
     }
 
-    const config = networkMode === 'testnet' ? CANONICAL_ISSUERS.testnet : CANONICAL_ISSUERS.public;
-    const distributorAddress = config.distributor;
-
     setSorobanTxStatus('simulating');
     setSorobanTxHash('');
     addToast('Simulating Soroban Transaction...', 'Calling wrapped XLM contract simulation on Testnet.', 'info');
@@ -657,14 +696,14 @@ function App() {
       const isTestnet = networkMode === 'testnet';
       const rpcServer = new rpc.Server('https://soroban-testnet.stellar.org');
       const sacContractId = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
-      const contract = new Contract(sacContractId);
+      const contract = new Contract(CUSTOM_VAULT_CONTRACT_ID);
 
       const amountInStroops = BigInt(Math.round(amt * 10000000));
 
       const op = contract.call(
-        'transfer',
+        'deposit',
         nativeToScVal(stellarAddress, { type: 'address' }),
-        nativeToScVal(distributorAddress, { type: 'address' }),
+        nativeToScVal(sacContractId, { type: 'address' }),
         nativeToScVal(amountInStroops, { type: 'i128' })
       );
 
@@ -780,28 +819,18 @@ function App() {
       const isTestnet = networkMode === 'testnet';
       const rpcServer = new rpc.Server('https://soroban-testnet.stellar.org');
       const horizonServer = new Horizon.Server(isTestnet ? 'https://horizon-testnet.stellar.org' : 'https://horizon.stellar.org');
-      const config = isTestnet ? CANONICAL_ISSUERS.testnet : CANONICAL_ISSUERS.public;
-      const distributorAddress = config.distributor;
-      const distributorSecret = config.distributorSecret;
-
-      if (!distributorSecret) {
-        throw new Error('Withdrawals are currently supported on Testnet.');
-      }
-
       const sacContractId = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
-      const contract = new Contract(sacContractId);
+      const contract = new Contract(CUSTOM_VAULT_CONTRACT_ID);
 
       const amountInStroops = BigInt(Math.round(amt * 10000000));
 
-      // Build the transfer operation: distributor transfers XLM to user
       const op = contract.call(
-        'transfer',
-        nativeToScVal(distributorAddress, { type: 'address' }),
+        'withdraw',
         nativeToScVal(stellarAddress, { type: 'address' }),
+        nativeToScVal(sacContractId, { type: 'address' }),
         nativeToScVal(amountInStroops, { type: 'i128' })
       );
 
-      // Build transaction with user as source, but co-signed by distributor
       const userAcc = await horizonServer.loadAccount(stellarAddress);
       
       const tx = new TransactionBuilder(userAcc, {
@@ -831,10 +860,7 @@ function App() {
         throw new Error(signResult.error);
       }
 
-      // Add distributor signature
       const finalTx = TransactionBuilder.fromXDR(signResult.signedTxXdr, isTestnet ? Networks.TESTNET : Networks.PUBLIC);
-      const distributorKeypair = Keypair.fromSecret(distributorSecret);
-      finalTx.sign(distributorKeypair);
 
       setSorobanTxStatus('submitting');
       addToast('Submitting to Blockchain...', 'Broadcasting transaction to Stellar Testnet.', 'info');

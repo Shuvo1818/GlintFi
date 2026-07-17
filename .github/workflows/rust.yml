@@ -1,0 +1,51 @@
+name: Rust CI & Build & Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test-build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+        targets: wasm32-unknown-unknown
+
+    - name: Run unit tests
+      run: cargo test --verbose --manifest-path Cargo.toml
+
+    - name: Build WASM Contract
+      run: cargo build --target wasm32-unknown-unknown --release --manifest-path Cargo.toml
+
+    - name: Setup Stellar CLI
+      uses: stellar/stellar-cli@main
+
+    - name: Configure Network
+      run: |
+        stellar network add --rpc-url https://soroban-testnet.stellar.org --network-passphrase "Test SDF Network ; September 2015" testnet
+
+    - name: Deploy Custom Contract to Testnet
+      run: |
+        stellar keys generate deployer --network testnet
+        DEPLOYER_ADDR=$(stellar keys address deployer)
+        echo "Deployer Account Address: $DEPLOYER_ADDR"
+        
+        CONTRACT_ID=$(stellar contract deploy --wasm target/wasm32-unknown-unknown/release/gullak_vault.wasm --source deployer --network testnet)
+        echo "=========================================================="
+        echo "SUCCESSFULLY DEPLOYED CUSTOM SMART CONTRACT TO TESTNET!"
+        echo "Deployed Contract ID: $CONTRACT_ID"
+        echo "Deployer Address: $DEPLOYER_ADDR"
+        echo "Stellar Explorer Link to view Transaction Hash:"
+        echo "https://stellar.expert/explorer/testnet/account/$DEPLOYER_ADDR"
+        echo "=========================================================="
