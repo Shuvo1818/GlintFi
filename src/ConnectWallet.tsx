@@ -101,10 +101,11 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
       ) : (
         <button 
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-slate-100 text-sm font-semibold transition shadow-lg shadow-indigo-950/50 cursor-pointer"
+          className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-slate-100 text-xs sm:text-sm font-semibold transition shadow-lg shadow-indigo-950/50 cursor-pointer shrink-0"
         >
-          <Wallet className="w-4 h-4" />
-          <span>Connect Wallet</span>
+          <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">Connect Wallet</span>
+          <span className="inline sm:hidden">Connect</span>
         </button>
       )}
 

@@ -3354,16 +3354,16 @@ function App() {
           <div className="flex items-center gap-3">
             <div 
               onClick={() => setCurrentView('dashboard')} 
-              className="flex items-center gap-3 cursor-pointer group"
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer group animate-fadeIn"
               title="Back to Dashboard"
             >
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-amber-500 via-indigo-600 to-slate-400 p-[1.5px] shadow-lg group-hover:scale-105 transition-transform duration-300">
+              <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-amber-500 via-indigo-600 to-slate-400 p-[1.5px] shadow-lg group-hover:scale-105 transition-transform duration-300">
                 <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-amber-400 group-hover:rotate-12 transition-transform duration-300" />
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 group-hover:rotate-12 transition-transform duration-300" />
                 </div>
               </div>
               <div>
-                <span className="font-bold text-2xl tracking-tight bg-gradient-to-r from-amber-400 via-slate-100 to-indigo-400 bg-clip-text text-transparent group-hover:from-amber-300 group-hover:to-indigo-300 transition-all duration-300">
+                <span className="hidden sm:inline font-bold text-2xl tracking-tight bg-gradient-to-r from-amber-400 via-slate-100 to-indigo-400 bg-clip-text text-transparent group-hover:from-amber-300 group-hover:to-indigo-300 transition-all duration-300">
                   GlintFi
                 </span>
               </div>
@@ -3371,20 +3371,20 @@ function App() {
             {currentView === 'trade' && (
               <button
                 onClick={() => setCurrentView('dashboard')}
-                className="group flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-850 bg-slate-900/40 hover:bg-indigo-600/10 hover:border-indigo-500/30 text-slate-400 hover:text-indigo-400 text-xs font-medium transition-all duration-300 cursor-pointer ml-3 shadow-sm hover:shadow-indigo-950/20"
+                className="group flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-850 bg-slate-900/40 hover:bg-indigo-600/10 hover:border-indigo-500/30 text-slate-400 hover:text-indigo-400 text-xs font-medium transition-all duration-300 cursor-pointer ml-2 sm:ml-3 shadow-sm hover:shadow-indigo-950/20"
               >
                 <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
-                <span>Dashboard</span>
+                <span className="hidden sm:inline">Dashboard</span>
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-4">
             
             {/* User Profile Info & Logout */}
-            <div className="flex items-center gap-2 md:border-r border-slate-900 md:pr-4 md:mr-1">
-              <div className="h-8 w-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-indigo-400">
-                <User className="w-4 h-4" />
+            <div className="flex items-center gap-1 sm:gap-2 md:border-r border-slate-900 md:pr-4 md:mr-1">
+              <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-indigo-400 shrink-0">
+                <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
               <div className="hidden md:flex flex-col text-left">
                 {isEditingName ? (
@@ -3424,38 +3424,40 @@ function App() {
               </div>
               <button
                 onClick={handleLogout}
-                className="p-1.5 text-slate-500 hover:text-rose-455 hover:bg-slate-900 rounded-lg transition ml-1 cursor-pointer"
+                className="p-1 sm:p-1.5 text-slate-500 hover:text-rose-455 hover:bg-slate-900 rounded-lg transition ml-0.5 cursor-pointer shrink-0"
                 title="Sign Out"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
 
-            <div className="bg-slate-950 border border-slate-900 p-0.5 rounded-lg flex">
+            <div className="bg-slate-950 border border-slate-900 p-0.5 rounded-lg flex shrink-0">
               <button 
                 onClick={() => setNetworkMode('public')}
-                className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition ${
+                className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold uppercase transition ${
                   networkMode === 'public' 
                     ? 'bg-indigo-600 text-slate-100' 
                     : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
-                Public
+                <span className="hidden xs:inline">Public</span>
+                <span className="inline xs:hidden">Pub</span>
               </button>
               <button 
                 onClick={() => setNetworkMode('testnet')}
-                className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition ${
+                className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded text-[9px] sm:text-[10px] font-bold uppercase transition ${
                   networkMode === 'testnet' 
                     ? 'bg-amber-600/10 border border-amber-500/20 text-amber-400' 
                     : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
-                Testnet
+                <span className="hidden xs:inline">Testnet</span>
+                <span className="inline xs:hidden">Test</span>
               </button>
             </div>
 
             {isFetchingBalances && (
-              <div className="flex items-center gap-1.5 text-slate-400 animate-pulse">
+              <div className="flex items-center gap-1.5 text-slate-400 animate-pulse shrink-0">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
                 <span className="text-[10px] font-mono hidden md:inline">Horizon Sync...</span>
               </div>
