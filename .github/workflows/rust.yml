@@ -36,6 +36,8 @@ jobs:
 
     - name: Build WASM Contract
       run: cargo build --target wasm32-unknown-unknown --release --manifest-path Cargo.toml
+      env:
+        RUSTFLAGS: "-C target-feature=-reference-types"
 
     - name: Setup Stellar CLI
       run: |
