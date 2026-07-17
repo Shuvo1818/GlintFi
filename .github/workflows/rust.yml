@@ -52,6 +52,9 @@ jobs:
         DEPLOYER_ADDR=$(stellar keys address deployer)
         echo "Deployer Account Address: $DEPLOYER_ADDR"
         
+        echo "Funding account via Friendbot..."
+        curl -fsSL "https://friendbot.stellar.org/?addr=$DEPLOYER_ADDR"
+        
         CONTRACT_ID=$(stellar contract deploy --wasm target/wasm32-unknown-unknown/release/gullak_vault.wasm --source deployer --network testnet)
         echo "=========================================================="
         echo "SUCCESSFULLY DEPLOYED CUSTOM SMART CONTRACT TO TESTNET!"
