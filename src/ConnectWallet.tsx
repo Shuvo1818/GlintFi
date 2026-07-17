@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Wallet, X, ExternalLink, Copy } from 'lucide-react';
 import { checkFreighterConnection, getFreighterAddress, connectAlbedoWallet } from './wallet';
+import { createPortal } from 'react-dom';
 
 interface ConnectWalletProps {
   walletConnected: boolean;
@@ -110,7 +111,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
       )}
 
       {/* Connection Modal Overlay */}
-      {modalOpen && (
+      {modalOpen && createPortal(
         <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 overflow-y-auto animate-fadeIn">
           <div className="min-h-full flex items-center justify-center p-4">
             <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
@@ -185,7 +186,8 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
             </div>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
       )}
     </div>
   );
