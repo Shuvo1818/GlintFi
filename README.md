@@ -74,7 +74,8 @@ npm run dev
 ### 📸 Proof of Successful Build & CI/CD Pipeline
 Below is the verification screenshot showing the successful GitHub Actions run and all 4 Vitest unit tests passing green:
 
-![CI/CD Pipeline Success](cicd_success.png)
+![CI/CD Pipeline Success]<img width="1920" height="1036" alt="{97E85A48-CC3F-477B-9A50-A5EB05D6A8B9}" src="https://github.com/user-attachments/assets/43a7d94b-9f63-45f9-beec-08ce6da5c4a4" />
+
 
 ### 📱 Mobile Responsive UI Proof
 Below is the screenshot showing the fully responsive header, layout, and modal alignment on mobile viewports:
