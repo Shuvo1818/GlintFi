@@ -42,7 +42,7 @@ jobs:
     - name: Setup Stellar CLI
       run: |
         mkdir -p $HOME/.cargo/bin
-        curl -fsSL https://github.com/stellar/stellar-cli/releases/download/v22.0.1/stellar-cli-22.0.1-x86_64-unknown-linux-gnu.tar.gz | tar xz -C $HOME/.cargo/bin
+        curl -fsSL https://github.com/stellar/stellar-cli/releases/download/v27.0.0/stellar-cli-27.0.0-x86_64-unknown-linux-gnu.tar.gz | tar xz -C $HOME/.cargo/bin
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: Optimize Contract WASM
@@ -54,7 +54,7 @@ jobs:
 
     - name: Deploy Custom Contract to Testnet
       run: |
-        stellar keys generate deployer --network testnet
+        stellar keys generate deployer --network testnet --fund
         DEPLOYER_ADDR=$(stellar keys address deployer)
         echo "Deployer Account Address: $DEPLOYER_ADDR"
         
