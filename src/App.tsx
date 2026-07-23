@@ -3442,12 +3442,12 @@ function App() {
               </button>
             </div>
 
-            {/* Level 4 Green Belt Feature Action Buttons */}
+            {/* Production Header Feature Action Buttons */}
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button
                 onClick={() => setFeedbackModalOpen(true)}
                 className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer"
-                title="User Feedback & Ratings (Level 4 Requirement)"
+                title="User Feedback & Community Ratings"
               >
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span className="hidden md:inline">Feedback</span>
@@ -3456,7 +3456,7 @@ function App() {
               <button
                 onClick={() => setAnalyticsModalOpen(true)}
                 className="flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-indigo-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer"
-                title="System Telemetry & Monitoring (Level 4 Requirement)"
+                title="System Telemetry & Platform Monitoring"
               >
                 <Activity className="w-3.5 h-3.5" />
                 <span className="hidden md:inline">Analytics</span>
@@ -3465,7 +3465,7 @@ function App() {
               <button
                 onClick={() => setProofModalOpen(true)}
                 className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer"
-                title="10+ Wallet Interaction Proof (Level 4 Requirement)"
+                title="Onboarding & Verified Wallet Interaction Ledger"
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span className="hidden md:inline">10+ Proofs</span>
