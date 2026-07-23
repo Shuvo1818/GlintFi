@@ -253,12 +253,13 @@ export const WalletInteractionProof: React.FC<WalletInteractionProofProps> = ({
                 </td>
                 <td className="px-4 py-3 text-right">
                   <a
-                    href={`https://stellar.expert/explorer/testnet/tx/${record.txHash}`}
+                    href={`https://stellar.expert/explorer/testnet/account/${record.address}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 hover:underline cursor-pointer"
+                    className="inline-flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 hover:underline cursor-pointer font-sans font-semibold"
+                    title="View Account Ledger on StellarExpert"
                   >
-                    <span>Explorer</span>
+                    <span>StellarExpert</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </td>
