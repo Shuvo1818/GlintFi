@@ -28,10 +28,16 @@ import {
   LogOut,
   Edit2,
   Check,
-  Trash2
+  Trash2,
+  MessageSquare,
+  Activity,
+  ShieldCheck
 } from 'lucide-react';
 import { signWithFreighter, signWithAlbedo } from './wallet';
 import { ConnectWallet } from './ConnectWallet';
+import { UserFeedbackModal } from './components/UserFeedbackModal';
+import { AnalyticsModal } from './components/AnalyticsModal';
+import { WalletInteractionProof } from './components/WalletInteractionProof';
 import { auth, db } from './firebase';
 import { 
   createUserWithEmailAndPassword, 
@@ -310,6 +316,11 @@ function App() {
     title: string;
     details: React.ReactNode;
   } | null>(null);
+
+  // Level 4 Green Belt State Variables
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState<boolean>(false);
+  const [analyticsModalOpen, setAnalyticsModalOpen] = useState<boolean>(false);
+  const [proofModalOpen, setProofModalOpen] = useState<boolean>(false);
 
   // ---------------------------------------------------------
   // Helper / Utility Actions
@@ -3431,6 +3442,36 @@ function App() {
               </button>
             </div>
 
+            {/* Level 4 Green Belt Feature Action Buttons */}
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+              <button
+                onClick={() => setFeedbackModalOpen(true)}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer"
+                title="User Feedback & Ratings (Level 4 Requirement)"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Feedback</span>
+              </button>
+
+              <button
+                onClick={() => setAnalyticsModalOpen(true)}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-indigo-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer"
+                title="System Telemetry & Monitoring (Level 4 Requirement)"
+              >
+                <Activity className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Analytics</span>
+              </button>
+
+              <button
+                onClick={() => setProofModalOpen(true)}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer"
+                title="10+ Wallet Interaction Proof (Level 4 Requirement)"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">10+ Proofs</span>
+              </button>
+            </div>
+
             <div className="bg-slate-950 border border-slate-900 p-0.5 rounded-lg flex shrink-0">
               <button 
                 onClick={() => setNetworkMode('public')}
@@ -4214,11 +4255,16 @@ function App() {
                   {/* TAB CONTENT */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     {activeTab === 'swap' && renderSwapForm()}
+                      {activeTab === 'swap' && renderSwapForm()}
                     {activeTab === 'gullak' && renderGullakForm()}
                     {activeTab === 'loan' && renderLoanForm()}
                     {activeTab === 'send' && renderSendForm()}
                   </div>
                 </div>
+                {/* Level 4 Mandatory Proof of 10+ Wallet Interactions */}
+                <section className="glass-card rounded-2xl p-6 border border-slate-900 relative mt-6">
+                  <WalletInteractionProof isEmbedded={true} />
+                </section>
               </section>
 
             </div>
@@ -4242,10 +4288,10 @@ function App() {
             <div className="space-y-1.5 p-4 rounded-xl bg-slate-950/40 border border-slate-900/80">
               <h4 className="font-semibold text-slate-200 flex items-center gap-1.5 text-sm">
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                Audited & Collateralized
+                Physical Backing Security
               </h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                sXAU and sXAG are 1:1 backed by physical vaulted bullion monitored by decentralized Oracles. View proof-of-reserve details in real-time.
+                Tokenized assets are tied directly to real market precious metal prices, maintaining purchasing power against global inflation.
               </p>
             </div>
             <div className="space-y-1.5 p-4 rounded-xl bg-slate-950/40 border border-slate-900/80">
@@ -4269,14 +4315,32 @@ function App() {
             <span>© 2026 GlintFi. Built for Stellar Hackathon.</span>
           </div>
           <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-slate-400">Horizon API</a>
+            <button onClick={() => setFeedbackModalOpen(true)} className="hover:text-amber-400 transition cursor-pointer">User Feedback</button>
             <span className="text-slate-700">|</span>
-            <a href="#" className="hover:text-slate-400">Vault Audits</a>
+            <button onClick={() => setAnalyticsModalOpen(true)} className="hover:text-indigo-400 transition cursor-pointer">System Telemetry</button>
             <span className="text-slate-700">|</span>
-            <a href="#" className="hover:text-slate-400">Terms of Use</a>
+            <button onClick={() => setProofModalOpen(true)} className="hover:text-emerald-400 transition cursor-pointer">10+ Interaction Proofs</button>
           </div>
         </div>
       </footer>
+
+      {/* Level 4 Feature Modals */}
+      <UserFeedbackModal
+        isOpen={feedbackModalOpen}
+        onClose={() => setFeedbackModalOpen(false)}
+        addToast={addToast}
+      />
+
+      <AnalyticsModal
+        isOpen={analyticsModalOpen}
+        onClose={() => setAnalyticsModalOpen(false)}
+      />
+
+      <WalletInteractionProof
+        isOpen={proofModalOpen}
+        onClose={() => setProofModalOpen(false)}
+        isEmbedded={false}
+      />
 
     </div>
   );
