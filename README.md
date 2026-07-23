@@ -81,6 +81,9 @@ Below is the verification screenshot showing the successful GitHub Actions run a
 Below is the screenshot showing the fully responsive header, layout, and modal alignment on mobile viewports:
 ![Mobile Responsive UI] <img width="400" height="900" alt="Screenshot_20260718-011150 (1)" src="https://github.com/user-attachments/assets/0264d30d-8a1a-4813-8613-056a3ea41491" /> <img width="400" height="900" alt="Screenshot_20260718-011142 (1)" src="https://github.com/user-attachments/assets/87e118ac-9418-4914-bb6e-f2f7639d75f2" />
 
+#### 📸 Analytics & Monitoring Setup <img width="1920" height="1090" alt="{E5F8F299-5630-496E-985A-4B92A6DF2AB0}" src="https://github.com/user-attachments/assets/830d3ed6-f981-46f0-a22d-3d226f9e8776" />
+
+#### 📸 3. User Feedback & 10+ Wallet Interaction Proof <img width="1920" height="1091" alt="{CD593700-1523-4036-895D-E81CACD88D86}" src="https://github.com/user-attachments/assets/01c4238e-07d3-4897-b01d-7e7969e6200a" />  <img width="1920" height="1086" alt="{6BD28165-DE70-4425-B01C-FE303FD8F3BE}" src="https://github.com/user-attachments/assets/92c35a29-88b3-4b11-a064-5f03295df162" />
 
 
 
@@ -194,17 +197,3 @@ The app captures and displays user-friendly error banners for three specific fai
    * Built a real-time **System Telemetry & Health Dashboard** (`AnalyticsModal.tsx`) tracking Stellar Horizon RPC latency (ms), ledger synchronization (`#5194820`), Web Vitals (FCP, LCP, CLS), and system uptime (99.98%).
 
 ---
-
-### 📸 Level 4 Screenshots & Proofs
-
-#### 📸 1. Product UI & Mobile Responsive Design
-<img src="mobile_responsive.png" alt="Mobile Responsive UI" width="280" style="max-width: 100%; border-radius: 12px; border: 1px solid #1e293b;" />
-
-#### 📸 2. Analytics & Monitoring Setup
-<img src="analytics_monitoring.png" alt="Analytics and Telemetry Monitoring" width="650" style="max-width: 100%; border-radius: 8px; border: 1px solid #1e293b;" />
-
-#### 📸 3. User Feedback & 10+ Wallet Interaction Proof
-<img src="wallet_proof.png" alt="10+ Wallet Interaction Proof and User Feedback" width="650" style="max-width: 100%; border-radius: 8px; border: 1px solid #1e293b;" />
-
----
-
