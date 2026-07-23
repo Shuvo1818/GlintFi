@@ -163,9 +163,6 @@ export const UserFeedbackModal: React.FC<UserFeedbackModalProps> = ({ isOpen, on
             <div>
               <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
                 User Feedback & Reviews
-                <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
-                  Level 4 Mandatory
-                </span>
               </h3>
               <p className="text-xs text-slate-400">Rate your experience & view community ratings for GlintFi</p>
             </div>

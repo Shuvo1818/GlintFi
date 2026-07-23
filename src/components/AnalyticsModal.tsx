@@ -56,7 +56,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ isOpen, onClose 
               <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
                 Monitoring & Platform Analytics
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">
-                  Level 4 System Telemetry
+                  Live Telemetry
                 </span>
               </h3>
               <p className="text-xs text-slate-400">Real-time Stellar RPC node health, telemetry & Vercel performance metrics</p>
