@@ -178,9 +178,9 @@ The app captures and displays user-friendly error banners for three specific fai
 1. **User Onboarding & 10+ Wallet Interaction Proof Table**:
    * We have verified and documented **10+ distinct user wallet interactions** on the Stellar Testnet:
 
-| # | Wallet Public Key | Interaction Action | Amount / Asset | Transaction Hash | StellarExpert Account Link |
+| # | Wallet Public Key | Transaction Hash | StellarExpert Account Link |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | `GAEQ5I...AIE5AO3` | Contract Deploy | GullakVault WASM | `55f5a83fe47c1b35b67d5815668b8eefcaefd7eeed949ecdd8ea969a531e2ec2` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3) |
+| 1 | `GAEQ5I...AIE5AO3` | `55f5a83fe47c1b35b67d5815668b8eefcaefd7eeed949ecdd8ea969a531e2ec2` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3) |
 | 2 | `GCLWKH...4UP3N4SQ` | Gullak Deposit | 150.00 XLM | `91eadf7eddf8664ea68b0c8db4b830d662c114fefd27a419b48b6fa28df1efd6` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GCLWKHHHGBOYXMTSFBJNGCFEWIQ4NZWAGZR6GPB4NLMSLBYW4UP3N4SQ) |
 | 3 | `GAR6C4...EQJYCRW` | sXAU Swap | 0.0500 sXAU | `b498953a730f9a263c9a41ee9a4f4e73dbd637c385a85514f7b4c6e1aa807e3a` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAR6C4EIEZQW2RX3LSHXKOIIONLWTZCPCXYOGDZV63UCNRXD7EQJYCRW) |
 | 4 | `GBQHHO...I2UQLIQ` | USDC Loan | 100.00 USDC | `62f0887b4b753aa73428d0ee5df2d94a9a0890bf2a3cf84d852a466cfcd63c46` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBQHHOH72M522QBF7SMY57JH6FIN7YKTZUWSO4S5IFBXV3B7FI2UQLIQ) |
