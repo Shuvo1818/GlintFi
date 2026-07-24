@@ -180,7 +180,7 @@ The app captures and displays user-friendly error banners for three specific fai
 
 | # | Wallet Public Key | Transaction Hash | StellarExpert Account Link |
 | :- | :--------------- | :--------------- | :------------------------- |
-| 1 | `GAEQ5I...AIE5AO3` | `55f5a83fe47c1b35b67d5815668b8eefcaefd7eeed949ecdd8ea969a531e2ec2` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3) |
+| 1 | `GB734NY67QID4C6DOIIRIHOU2A7QICH7X7XHNPG6UTAIFB5VIDJ6BO44` | `10d1bf222eaf2680c00d44b3b10051e6a4d2f5c41bc58da48d3711a357443490` | [StellarExpert Link](https://stellar.expert/explorer/testnet/tx/10d1bf222eaf2680c00d44b3b10051e6a4d2f5c41bc58da48d3711a357443490) |
 | 2 | `GCLWKH...4UP3N4SQ` | `91eadf7eddf8664ea68b0c8db4b830d662c114fefd27a419b48b6fa28df1efd6` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GCLWKHHHGBOYXMTSFBJNGCFEWIQ4NZWAGZR6GPB4NLMSLBYW4UP3N4SQ) |
 | 3 | `GAR6C4...EQJYCRW` | `b498953a730f9a263c9a41ee9a4f4e73dbd637c385a85514f7b4c6e1aa807e3a` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAR6C4EIEZQW2RX3LSHXKOIIONLWTZCPCXYOGDZV63UCNRXD7EQJYCRW) |
 | 4 | `GBQHHO...I2UQLIQ` | `62f0887b4b753aa73428d0ee5df2d94a9a0890bf2a3cf84d852a466cfcd63c46` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBQHHOH72M522QBF7SMY57JH6FIN7YKTZUWSO4S5IFBXV3B7FI2UQLIQ) |
