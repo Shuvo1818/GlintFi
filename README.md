@@ -17,7 +17,7 @@ GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)**.
 ## 📺 Product Walkthrough Video
 🔗 **Watch the full features & interaction demo on YouTube:** https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH
 
-#### 📸 3. User Feedback & 10+ Wallet Interaction Proof
+#### User Feedback & 10+ Wallet Interaction Proof
 
  [Give feedback](https://docs.google.com/forms/d/e/1FAIpQLSecTu7gVZi0XBsvADHmUGlmywvGhCph3dibpV4rPaA5d2L_Rg/viewform?usp=publish-editor).
  
