@@ -29,9 +29,7 @@ import {
   Edit2,
   Check,
   Trash2,
-  MessageSquare,
-  Activity,
-  ShieldCheck
+  Activity
 } from 'lucide-react';
 import { signWithFreighter, signWithAlbedo } from './wallet';
 import { ConnectWallet } from './ConnectWallet';
@@ -3442,33 +3440,15 @@ function App() {
               </button>
             </div>
 
-            {/* Production Header Feature Action Buttons */}
+            {/* Production Header Analytics Button */}
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button
-                onClick={() => setFeedbackModalOpen(true)}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer"
-                title="User Feedback & Community Ratings"
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Feedback</span>
-              </button>
-
-              <button
                 onClick={() => setAnalyticsModalOpen(true)}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-indigo-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-indigo-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm"
                 title="System Telemetry & Platform Monitoring"
               >
                 <Activity className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Analytics</span>
-              </button>
-
-              <button
-                onClick={() => setProofModalOpen(true)}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer"
-                title="Onboarding & Verified Wallet Interaction Ledger"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">10+ Proofs</span>
+                <span className="hidden xs:inline">Analytics</span>
               </button>
             </div>
 
@@ -4310,11 +4290,11 @@ function App() {
             <span>© 2026 GlintFi. Built for Stellar Hackathon.</span>
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={() => setFeedbackModalOpen(true)} className="hover:text-amber-400 transition cursor-pointer">User Feedback</button>
+            <a href="https://horizon-testnet.stellar.org" target="_blank" rel="noreferrer" className="hover:text-slate-400">Horizon API</a>
             <span className="text-slate-700">|</span>
             <button onClick={() => setAnalyticsModalOpen(true)} className="hover:text-indigo-400 transition cursor-pointer">System Telemetry</button>
             <span className="text-slate-700">|</span>
-            <button onClick={() => setProofModalOpen(true)} className="hover:text-emerald-400 transition cursor-pointer">10+ Interaction Proofs</button>
+            <a href="#" className="hover:text-slate-400">Vault Audits</a>
           </div>
         </div>
       </footer>
