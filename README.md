@@ -191,10 +191,7 @@ The app captures and displays user-friendly error banners for three specific fai
 | 9 | `GCCMO7VFFSF22K6D2FICUHDUIBXXXGTQ45LKY3LCCKWOBTA6O5G3WYCN` | `b65bb0b57d141d0cbd37c772564570467e436bf923e50fbdb43444ab6236c0d0` | [StellarExpert Link](https://stellar.expert/explorer/testnet/tx/b65bb0b57d141d0cbd37c772564570467e436bf923e50fbdb43444ab6236c0d0) |
 | 10 | `GAYPGP53CJNJEGUKX5BAI5ULMCUOFZCCBKLSHQ77UATEXJEMIGABR7QJ` | `8a687dc8a4170895c92b95794352d96b86bcdf7e1610881cf9b1b427ed2ffc9c` | [StellarExpert Link](https://stellar.expert/explorer/testnet/tx/8a687dc8a4170895c92b95794352d96b86bcdf7e1610881cf9b1b427ed2ffc9c) |
 
-2. **Mandatory User Feedback Collection System**:
-   * Built an interactive **User Feedback & Rating Modal** (`UserFeedbackModal.tsx`) allowing users to rate their experience (1–5 stars), select categories (Gullak Vault, Swaps, Loans, UI/UX, Performance), leave comments, and view live aggregated community feedback.
-
-3. **Monitoring & Analytics Integration**:
+2. **Monitoring & Analytics Integration**:
    * Integrated **`@vercel/analytics`** for production deployment visitor metrics.
    * Built a real-time **System Telemetry & Health Dashboard** (`AnalyticsModal.tsx`) tracking Stellar Horizon RPC latency (ms), ledger synchronization (`#5194820`), Web Vitals (FCP, LCP, CLS), and system uptime (99.98%).
 
