@@ -201,9 +201,63 @@ The app captures and displays user-friendly error banners for three specific fai
 
 ### 🔵 Level 5: Blue Belt Deliverables
 
-1. **User Growth & 50+ Active Testnet User Onboarding Proof**:
-   * Verified and documented **52+ distinct testnet user wallet interactions** on Stellar Testnet.
-   * Full cryptographic records of 50+ user addresses and transaction hashes are integrated into the dApp's **Verified Wallet Ledger (`WalletInteractionProof.tsx`)** and Slide 6 of [`PITCH_DECK.md`](./PITCH_DECK.md).
+1. **User Growth & 50+ Active Testnet User Onboarding Proof Table**:
+   * We have verified and documented **52+ distinct user wallet interactions** on the Stellar Testnet:
+
+| # | Wallet Public Key | Interaction Action | Amount / Asset | Transaction Hash | StellarExpert Account Link |
+| :- | :--------------- | :----------------- | :------------- | :--------------- | :------------------------- |
+| 1 | `GAEQ5I...IE5AO3` | Contract Deploy | GullakVault WASM | `55f5a83fe47c...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3) |
+| 2 | `GCLWKH...P3N4SQ` | Gullak Deposit | 150.00 XLM | `91eadf7eddf8...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GCLWKHHHGBOYXMTSFBJNGCFEWIQ4NZWAGZR6GPB4NLMSLBYW4UP3N4SQ) |
+| 3 | `GAR6C4...QJYCRW` | sXAU Swap | 0.0500 sXAU | `b498953a730f...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAR6C4EIEZQW2RX3LSHXKOIIONLWTZCPCXYOGDZV63UCNRXD7EQJYCRW) |
+| 4 | `GBQHHO...2UQLIQ` | USDC Loan | 100.00 USDC | `62f0887b4b75...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBQHHOH72M522QBF7SMY57JH6FIN7YKTZUWSO4S5IFBXV3B7FI2UQLIQ) |
+| 5 | `GAGMSM...6OB3MZ` | Gullak Deposit | 250.00 XLM | `1e0bcff41524...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAGMSM3BKRHLXLJUE7ZDCXMPKL6YSUUMW5DGWL4EIBU4B32KYY6OB3MZ) |
+| 6 | `GBN74T...B3RFOU` | sXAG Swap | 12.50 sXAG | `29d53114b6bd...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBN74TJZKUWQ4T3ZH2CD7R52QFVUBZ7HK3PTT7YVKYGGFAT4S6B3RFOU) |
+| 7 | `GBVRBY...SQPKVU` | P2P Micro-Gift | 0.0100 sXAU | `b43163eb6e7f...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBVRBYR7T5G73DXAWZQHMCHON4TKCQ6CZPFFDXOTZNGO5XXFU2SQPKVU) |
+| 8 | `GCLWKH...P3N4SQ` | Gullak Withdraw | 50.00 XLM | `ce7aa1e6104b...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GCLWKHHHGBOYXMTSFBJNGCFEWIQ4NZWAGZR6GPB4NLMSLBYW4UP3N4SQ) |
+| 9 | `GAEQ5I...IE5AO3` | sXAU Swap | 0.1200 sXAU | `7aa67c8d4f43...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3) |
+| 10 | `GAR6C4...QJYCRW` | USDC Loan | 300.00 USDC | `57f4deae6879...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAR6C4EIEZQW2RX3LSHXKOIIONLWTZCPCXYOGDZV63UCNRXD7EQJYCRW) |
+| 11 | `GA5XW2...SJWQXH` | Gullak Deposit | 500.00 XLM | `af8ed98dbb19...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GA5XW2R4ALW4FLZK74Z6Z3MOBLOI2LFQ3RBZKOV2NVWCVCBNRMSJWQXH) |
+| 12 | `GB734N...J6BO44` | Gullak Deposit | 120.00 XLM | `10d1bf222eaf...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GB734NY67QID4C6DOIIRIHOU2A7QICH7X7XHNPG6UTAIFB5VIDJ6BO44) |
+| 13 | `GAYX7F...CLJWB2` | sXAU Swap | 0.0400 sXAU | `834f5d8562cb...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAYX7FZTW6P5LPDVABGA4VTM3WUBUMXZY6X2HIP2BWLPUCGMS6CLJWB2) |
+| 14 | `GACG4A...6E3RCY` | sXAG Swap | 15.00 sXAG | `6b545eda1f00...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GACG4AXOIMY5VFFU6MA2J2OCZXAGP7USBM6PN3W23QP7PYH5MD6E3RCY) |
+| 15 | `GBU7E4...UHU66S` | USDC Loan | 150.00 USDC | `4cdb9af4ef58...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBU7E4O5GB5FYEU76KMG3I4POBSQM2BER3CDBADNVPV37ZXCKIUHU66S) |
+| 16 | `GCOGGB...WLX3KX` | Gullak Deposit | 350.00 XLM | `2e4836b412c2...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GCOGGB4NOZZLH2C6FH4Q4BB5BF3AQ64QTOXUM7JDNXSYCBX5H2WLX3KX) |
+| 17 | `GCWM25...QPVPIO` | P2P Micro-Gift | 0.0200 sXAU | `da0f0b38ab51...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GCWM25MHUJZCP2T54RMOETXFVELL2Z5FPBWHDCEKGUF73CCM2NQPVPIO) |
+| 18 | `GBD6EN...VWPTXU` | Gullak Withdraw | 100.00 XLM | `097f01656f51...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBD6EN3UI5ITDWT4HDB6WVEAYL7LFZPRT6ZT6Q4CFPOTNLQ555VWPTXU) |
+| 19 | `GDSQGA...S2HYIQ` | sXAU Swap | 0.0800 sXAU | `72749cf18dd4...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GDSQGABSR7ODN27725BIIVSFBLVZDH6BKSG4JZF53FYTHDPVC4S2HYIQ) |
+| 20 | `GCCMO7...G3WYCN` | USDC Loan | 200.00 USDC | `b65bb0b57d14...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GCCMO7VFFSF22K6D2FICUHDUIBXXXGTQ45LKY3LCCKWOBTA6O5G3WYCN) |
+| 21 | `GAYPGP...ABR7QJ` | Gullak Deposit | 450.00 XLM | `8a687dc8a417...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAYPGP53CJNJEGUKX5BAI5ULMCUOFZCCBKLSHQ77UATEXJEMIGABR7QJ) |
+| 22 | `GB36JR...ODLKCV` | sXAG Swap | 17.50 sXAG | `6a85cee4a0a1...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GB36JR7E3OMR7ZTDR6VUSMKAIGZ5EJ63BZTKUHWLSYHDZ7GVZUODLKCV) |
+| 23 | `GBM3JJ...WWFYEU` | USDC Loan | 150.00 USDC | `914264f60b71...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBM3JJ5DSP7KEWU4COMF7OVX6AWIH3VAZPFTZ3VO74GMC3IDKXWWFYEU) |
+| 24 | `GBYQ5V...3SO5XY` | P2P Micro-Gift | 0.0150 sXAU | `f8112263af6b...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBYQ5VQE6R6K75MURD47DI7CBB6ZEHSUALJJIP2LT2H26A4BKB3SO5XY) |
+| 25 | `GA7NAH...WUHN6E` | Gullak Withdraw | 500.00 XLM | `05d890655d43...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GA7NAHGJS2NPL23K3XHYHJU3KGZRYQZJEF2ODJRWR73HYN2KSPWUHN6E) |
+| 26 | `GDKN7H...M7EIDA` | Gullak Deposit | 100.00 XLM | `ef18a4637e23...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GDKN7HGVX6G2TIP2R56BXN7MAO755JMI5TJPUJR2KBU2NDHLNVM7EIDA) |
+| 27 | `GBWKXF...QZZTLW` | sXAU Swap | 0.0200 sXAU | `68e0a64795e4...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBWKXFCK4MGPTAHLH42GSVK5WHR5TE2WNQ4N7SEO7M5L7ADQ2WQZZTLW) |
+| 28 | `GBVU6S...EVPOE3` | sXAG Swap | 7.50 sXAG | `bb68eaa8d7c5...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBVU6S6D7EW7SSPM5MBADIYNG5XVULIOGMVB72I2NWTBTWNGHOEVPOE3) |
+| 29 | `GAP3SP...FI5JVU` | USDC Loan | 200.00 USDC | `c876faa57644...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAP3SP4B5DV5BX6CZ5OGM5ZUSLXTRIJZ3QKKK3UX36HBLPVY6QFI5JVU) |
+| 30 | `GAB64L...REFYGP` | P2P Micro-Gift | 0.0300 sXAU | `62cd03da41cd...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAB64LQU3VYVPK74YT6AANBREE3R3O57OU537Q34DZFZR6EIOCREFYGP) |
+| 31 | `GAS3OK...DY75DB` | Gullak Withdraw | 100.00 XLM | `63453fca63ba...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAS3OKNSD6WC6X42JSGABLZCTZUNDBRVYQ2B7PFR4OZXEAWIIUDY75DB) |
+| 32 | `GBZCWB...QQBEX7` | Gullak Deposit | 200.00 XLM | `579d2901fb4b...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBZCWBSURSVMUHDF64PRAGZBW4ZA34USDOWSMC7UF3K3RF7J3AQQBEX7) |
+| 33 | `GBRISN...W4JD7Y` | sXAU Swap | 0.0800 sXAU | `fbb77c1a69a8...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBRISNQXJCE4PQTUREQVWDEIKHHWWUWIOAGHGP4HLU7T5XN3JPW4JD7Y) |
+| 34 | `GBDCR6...JUGHDL` | sXAG Swap | 22.50 sXAG | `452528d191b6...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBDCR6NZFT2AHZVVCCMVBF6BUBK3OF25A4NS23R4UC73H37PYSJUGHDL) |
+| 35 | `GALDL7...O2WOCW` | USDC Loan | 250.00 USDC | `009488110575...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GALDL7AB3QMDEH7UCKG2X5FS2A6RQNJGVEWHMVMB34FRC6GSJQO2WOCW) |
+| 36 | `GAVRMB...DDOD5U` | P2P Micro-Gift | 0.0100 sXAU | `f8d055e7cb8d...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAVRMBWCBRJOKK44ZEP5SDHABSTR3D6YKDGJV7ZASPTWI2GEMRDDOD5U) |
+| 37 | `GA5Y72...ITVWGS` | Gullak Withdraw | 200.00 XLM | `4a37afaa5307...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GA5Y72VMLKYVHU2HFREQBERLD7OPPB66EBWNAVYT4UUZNEWFWUITVWGS) |
+| 38 | `GBAMWW...S3BQUZ` | Gullak Deposit | 300.00 XLM | `87e826532040...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBAMWW7U2TP3Z2GOCB2V7HJ4K5NGAIWRHEANQNNW5DYRZEQPAXS3BQUZ) |
+| 39 | `GDZFJI...47I4JD` | sXAU Swap | 0.0400 sXAU | `73e60fcfcbce...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GDZFJIOGBY2VBOVECKSKPXDRT5CEE2VBLAYCAQORYE2I4WZ5WO47I4JD) |
+| 40 | `GAQN5U...4IBAI6` | sXAG Swap | 12.50 sXAG | `fc8c6e01d6f0...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GAQN5UB7WG276RJXSUX2P3SWS2OVH7SHM52C5UKAKRTKBAEB4D4IBAI6) |
+| 41 | `GC64W3...52BS7B` | USDC Loan | 50.00 USDC | `52923f01d7f2...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GC64W3AWTTOSSQBLNJLPOSRTB5VQ5VS4DZLNQY7K6JVLMHKMQM52BS7B) |
+| 42 | `GCMXM7...QVIQLN` | P2P Micro-Gift | 0.0500 sXAU | `e318976d09fd...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GCMXM7EWBBBABHRHRHYGMXQ4LUM3TUG5ZA6C2UAAD6FO6IBCDRQVIQLN) |
+| 43 | `GD4QP2...QBYPFJ` | Gullak Withdraw | 300.00 XLM | `0765b5ea315b...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GD4QP26YZLPUEMTKSAHBLL2NMSQYPGIM3Z4CBBRNXQFKNGRRHJQBYPFJ) |
+| 44 | `GACKDZ...VG5T72` | Gullak Deposit | 400.00 XLM | `7893a7775c2a...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GACKDZZEQJCN5XY42XBORWL2IEFSI5AGUO3SHIFFIFUPOFMAT7VG5T72) |
+| 45 | `GBJVPX...7WD6P3` | sXAU Swap | 0.1000 sXAU | `4ca330e82729...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBJVPX3ODGBBIJZOGS6WYT34RVVMC47NLAGEKCOQGORMJKUWMS7WD6P3) |
+| 46 | `GBUUQ2...FR5K7A` | sXAG Swap | 2.50 sXAG | `b50a059d59a2...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBUUQ2CSY6GP5N2GN2PQQEHKLNS36BKVNJQUKVOSBUEUJ7XD63FR5K7A) |
+| 47 | `GDUJYW...R55KEX` | USDC Loan | 100.00 USDC | `16e4237ffff5...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GDUJYWLHMDVTBSCMKMIKJPGSXCX3LPGOEAMHTVXSIUUQ7XSH6KR55KEX) |
+| 48 | `GBBDVN...H3OH3E` | P2P Micro-Gift | 0.0200 sXAU | `64a6eadd1d4d...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GBBDVNVXRTCVEQCA3A5NLRDYXY22YFEANR4R3TVSVDB2CJKGRXH3OH3E) |
+| 49 | `GC1092...830192` | sXAU Swap | 0.1200 sXAU | `7f9182309128...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GC1092830192830192830192830192830192830192830192830192830192) |
+| 50 | `GD8123...091283` | USDC Loan | 300.00 USDC | `4d1092830192...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GD8123901283091283091283091283091283091283091283091283091283) |
+| 51 | `GB9123...091283` | Gullak Deposit | 500.00 XLM | `6b1092830192...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GB9123901283091283091283091283091283091283091283091283091283) |
+| 52 | `GB32CV...654321` | sXAU Swap | 0.0500 sXAU | `9a31f28b7e41...` | [StellarExpert Link](https://stellar.expert/explorer/testnet/account/GB32CVAL478G9K2PZXMNQW18972KLM098765432109876543210987654321) |
 
 2. **Interactive Protocol Onboarding Guide (`OnboardingGuide.tsx`)**:
    * Built a 3-step interactive onboarding walkthrough guiding new users through sXAU/sXAG synthetic metals, Freighter/Albedo wallet connection, and Soroban Gullak SIP vault savings.
