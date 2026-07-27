@@ -29,13 +29,15 @@ import {
   Edit2,
   Check,
   Trash2,
-  Activity
+  Activity,
+  HelpCircle
 } from 'lucide-react';
 import { signWithFreighter, signWithAlbedo } from './wallet';
 import { ConnectWallet } from './ConnectWallet';
 import { UserFeedbackModal } from './components/UserFeedbackModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
 import { WalletInteractionProof } from './components/WalletInteractionProof';
+import { OnboardingGuide } from './components/OnboardingGuide';
 import { auth, db } from './firebase';
 import { 
   createUserWithEmailAndPassword, 
@@ -315,10 +317,11 @@ function App() {
     details: React.ReactNode;
   } | null>(null);
 
-  // Level 4 Green Belt State Variables
+  // Level 4 & Level 5 Feature State Variables
   const [feedbackModalOpen, setFeedbackModalOpen] = useState<boolean>(false);
   const [analyticsModalOpen, setAnalyticsModalOpen] = useState<boolean>(false);
   const [proofModalOpen, setProofModalOpen] = useState<boolean>(false);
+  const [onboardingOpen, setOnboardingOpen] = useState<boolean>(false);
 
   // ---------------------------------------------------------
   // Helper / Utility Actions
@@ -3440,8 +3443,17 @@ function App() {
               </button>
             </div>
 
-            {/* Production Header Analytics Button */}
+            {/* Production Header Action Buttons */}
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+              <button
+                onClick={() => setOnboardingOpen(true)}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm"
+                title="Interactive Protocol Onboarding Tour"
+              >
+                <HelpCircle className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">Guide</span>
+              </button>
+
               <button
                 onClick={() => setAnalyticsModalOpen(true)}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-indigo-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm"
@@ -4315,6 +4327,12 @@ function App() {
         isOpen={proofModalOpen}
         onClose={() => setProofModalOpen(false)}
         isEmbedded={false}
+      />
+
+      <OnboardingGuide
+        isOpen={onboardingOpen}
+        onClose={() => setOnboardingOpen(false)}
+        onConnectWallet={() => handleConnectWallet('', 'freighter')}
       />
 
     </div>
