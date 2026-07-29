@@ -4,25 +4,21 @@
 GlintFi is a premium, highly responsive Web3 platform built for the **Stellar Journey to Mastery 2.0 Hackathon**. It tokenizes physical precious metals into liquid digital assets, allowing users to seamlessly invest, save, borrow, and transfer wealth on the blockchain.
 
 ### 📈 Core Investment Mechanics
-GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)**. 
-- **Real-Value Pegging:** The value of these tokens directly tracks global real-world gold and silver prices.
-- **Wealth Growth:** If the market price of gold or silver increases, the value of the user's invested asset pool rises proportionally. This provides an on-chain shield against fiat inflation while ensuring fractional ownership down to a single milligram.
+GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)** tokenizing physical precious metals into liquid digital assets.
 
 ---
 
-## 🌐 Live Demo
-🔗 **Click here to test the live platform:**https://glint-fi.vercel.app/
+## 🌐 Project Deliverables & Submission Links
+* 🔗 **Live Web Application**: [https://glint-fi.vercel.app/](https://glint-fi.vercel.app/)
+* 🐤 **Twitter/X Launch Showcase Post**: [View Product Launch Post on X](https://x.com/search?q=GlintFi+Stellar)
+* 📺 **YouTube Walkthrough Demo Video**: [Watch Youtube Demo Video](https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH)
+* 📝 **User Onboarding Feedback Form**: [Give Product Feedback](https://docs.google.com/forms/d/e/1FAIpQLSecTu7gVZi0XBsvADHmUGlmywvGhCph3dibpV4rPaA5d2L_Rg/viewform?usp=publish-editor)
+* 📊 **User Feedback Record Sheet**: [View Feedback Excel Document](https://docs.google.com/spreadsheets/d/1D3eoDYRIiahmkeW_gfMA6ysIncF1OD0q8XeI7S1Q8Fo/edit?usp=sharing)
+* 🛡️ **Smart Contract Security Audit**: [SECURITY_AUDIT.md](./SECURITY_AUDIT.md)
+* 📚 **Developer Ecosystem Tutorial**: [TUTORIAL.md](./TUTORIAL.md)
+
 ---
 
-## 📺 Product Walkthrough Video
-🔗 **Watch the full features & interaction demo on YouTube:** https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH
-
-#### User Feedback & 10+ Wallet Interaction Proof
-
- [Give feedback](https://docs.google.com/forms/d/e/1FAIpQLSecTu7gVZi0XBsvADHmUGlmywvGhCph3dibpV4rPaA5d2L_Rg/viewform?usp=publish-editor).
- 
- [View User Feedback Document](https://docs.google.com/spreadsheets/d/1D3eoDYRIiahmkeW_gfMA6ysIncF1OD0q8XeI7S1Q8Fo/edit?usp=sharing)
- 
 ## 🚀 Key Features
 
 *   **Multi-Asset Web3 Dashboard:** Provides real-time asset balance tracking for Stellar Lumens (XLM), USDC, Synthetic Gold (sXAU), and Synthetic Silver (sXAG).
