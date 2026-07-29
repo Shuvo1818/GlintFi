@@ -321,3 +321,8 @@ The app captures and displays user-friendly error banners for three specific fai
      * *Phase 1 Evolution (Git Commit [`dc4efab`](https://github.com/Shuvo1818/GlintFi/commit/dc4efab))*: Expanded testnet proof table to 52 real Horizon transactions and structured Level 4 & Level 5 markdown sections.
      * *Phase 2 Evolution (Git Commit [`7c5def1`](https://github.com/Shuvo1818/GlintFi/commit/7c5def1))*: Integrated 100% verified Horizon RPC live hashes and source account records across dApp components.
      * *Phase 3 Black Belt Evolution (Git Commit [`e902641`](https://github.com/Shuvo1818/GlintFi/commit/e902641))*: Deployed Level 6 Black Belt features, Stellar Mainnet public network switcher, Fee Bump sponsorship, and Multi-Signature threshold approval guard.
+
+---
+
+## 📄 License
+This project is open-source software licensed under the [MIT License](./LICENSE).
