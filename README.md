@@ -10,24 +10,18 @@ GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)**.
 
 ---
 
-## 🌐 Live Demo
-🔗 **Click here to test the live platform:**https://glint-fi.vercel.app/
----
+## 🌐 Project Deliverables & Key Links
 
-## 📺 Product Walkthrough Video
-🔗 **Watch the full features & interaction demo on YouTube:** https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH
-
-## 🐤 Twitter/X Launch Post
-🔗 **View product launch thread on X:** https://x.com/Shuvankar112/status/2082378112072077796
-
-## 📜 Proof of Deployment Document
-🔗 **View Mainnet & Testnet Deployment Verification:** [DEPLOYMENT.md](./DEPLOYMENT.md)
-
-#### User Feedback & 10+ Wallet Interaction Proof
-
- [Give feedback](https://docs.google.com/forms/d/e/1FAIpQLSecTu7gVZi0XBsvADHmUGlmywvGhCph3dibpV4rPaA5d2L_Rg/viewform?usp=publish-editor).
- 
- [View User Feedback Document](https://docs.google.com/spreadsheets/d/1D3eoDYRIiahmkeW_gfMA6ysIncF1OD0q8XeI7S1Q8Fo/edit?usp=sharing)
+| Deliverable Resource | Direct Verification Link | Description / Details |
+| :--- | :--- | :--- |
+| 🚀 **Live Web Application** | [https://glint-fi.vercel.app](https://glint-fi.vercel.app/) | Production-ready dApp deployed on Vercel |
+| 📜 **Proof of Deployment** | [DEPLOYMENT.md](./DEPLOYMENT.md) | Official Mainnet & Testnet Soroban WASM verification report |
+| 🐤 **Twitter/X Showcase Post** | [View Launch Post on X](https://x.com/Shuvankar112/status/2082378112072077796) | Official product launch thread & showcase |
+| 📺 **YouTube Walkthrough Demo** | [Watch Demo Video](https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH) | Full video walkthrough of protocol features |
+| 📝 **User Onboarding Feedback** | [Give Product Feedback](https://docs.google.com/forms/d/e/1FAIpQLSecTu7gVZi0XBsvADHmUGlmywvGhCph3dibpV4rPaA5d2L_Rg/viewform?usp=publish-editor) | Official Google Form feedback collector |
+| 📊 **Feedback Excel Document** | [View Feedback Excel Sheet](https://docs.google.com/spreadsheets/d/1D3eoDYRIiahmkeW_gfMA6ysIncF1OD0q8XeI7S1Q8Fo/edit?usp=sharing) | Exported onboarding feedback record sheet |
+| 🛡️ **Smart Contract Audit** | [SECURITY_AUDIT.md](./SECURITY_AUDIT.md) | Formal Soroban smart contract security review |
+| 📚 **Developer Ecosystem Tutorial**| [TUTORIAL.md](./TUTORIAL.md) | Ecosystem contribution tutorial & workshop |
  
 ## 🚀 Key Features
 
