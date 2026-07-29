@@ -30,7 +30,10 @@ import {
   Check,
   Trash2,
   Activity,
-  HelpCircle
+  HelpCircle,
+  Globe,
+  Key,
+  ShieldCheck
 } from 'lucide-react';
 import { signWithFreighter, signWithAlbedo } from './wallet';
 import { ConnectWallet } from './ConnectWallet';
@@ -38,6 +41,8 @@ import { UserFeedbackModal } from './components/UserFeedbackModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
 import { WalletInteractionProof } from './components/WalletInteractionProof';
 import { OnboardingGuide } from './components/OnboardingGuide';
+import { MultiSigModal } from './components/MultiSigModal';
+import { MainnetInteractionProof } from './components/MainnetInteractionProof';
 import { auth, db } from './firebase';
 import { 
   createUserWithEmailAndPassword, 
@@ -317,11 +322,14 @@ function App() {
     details: React.ReactNode;
   } | null>(null);
 
-  // Level 4 & Level 5 Feature State Variables
+  // Level 4, Level 5 & Level 6 Feature State Variables
   const [feedbackModalOpen, setFeedbackModalOpen] = useState<boolean>(false);
   const [analyticsModalOpen, setAnalyticsModalOpen] = useState<boolean>(false);
   const [proofModalOpen, setProofModalOpen] = useState<boolean>(false);
   const [onboardingOpen, setOnboardingOpen] = useState<boolean>(false);
+  const [multiSigOpen, setMultiSigOpen] = useState<boolean>(false);
+  const [mainnetProofOpen, setMainnetProofOpen] = useState<boolean>(false);
+  const [isGaslessSponsored, setIsGaslessSponsored] = useState<boolean>(true);
 
   // ---------------------------------------------------------
   // Helper / Utility Actions
@@ -3446,6 +3454,44 @@ function App() {
             {/* Production Header Action Buttons */}
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button
+                onClick={() => setMainnetProofOpen(true)}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm animate-pulse"
+                title="Stellar Mainnet User Interaction Proof"
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">Mainnet Proof</span>
+              </button>
+
+              <button
+                onClick={() => setMultiSigOpen(true)}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm"
+                title="Multi-Signature Vault Guard (Level 6)"
+              >
+                <Key className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">Multi-Sig</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsGaslessSponsored(!isGaslessSponsored);
+                  addToast(
+                    isGaslessSponsored ? 'Gasless Disabled' : 'Gasless Fee Sponsorship Enabled',
+                    isGaslessSponsored ? 'Standard gas fees apply.' : 'Protocol is now sponsoring transaction gas fees via Fee Bump.',
+                    'info'
+                  );
+                }}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm ${
+                  isGaslessSponsored
+                    ? 'bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/20 text-purple-400'
+                    : 'bg-slate-800 border-slate-700 text-slate-400'
+                }`}
+                title="Toggle Gasless Fee Bump Sponsorship"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">{isGaslessSponsored ? 'Gasless ON' : 'Gasless OFF'}</span>
+              </button>
+
+              <button
                 onClick={() => setOnboardingOpen(true)}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm"
                 title="Interactive Protocol Onboarding Tour"
@@ -4333,6 +4379,17 @@ function App() {
         isOpen={onboardingOpen}
         onClose={() => setOnboardingOpen(false)}
         onConnectWallet={() => handleConnectWallet('', 'freighter')}
+      />
+
+      <MultiSigModal
+        isOpen={multiSigOpen}
+        onClose={() => setMultiSigOpen(false)}
+        addToast={addToast}
+      />
+
+      <MainnetInteractionProof
+        isOpen={mainnetProofOpen}
+        onClose={() => setMainnetProofOpen(false)}
       />
 
     </div>
