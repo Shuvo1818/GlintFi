@@ -17,10 +17,16 @@ export const MultiSigModal: React.FC<MultiSigModalProps> = ({
   addToast,
 }) => {
   const [threshold] = useState<number>(2);
-  const [signatures, setSignatures] = useState<Record<string, boolean>>({
-    'Signer 1 (Protocol Custodian)': true,
-    'Signer 2 (User Wallet)': false,
-    'Signer 3 (Backup Guardian)': false,
+  const [signatures, setSignatures] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem('glintfi_multisig_signatures');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {
+      'Signer 1 (Protocol Custodian)': true,
+      'Signer 2 (User Wallet)': true,
+      'Signer 3 (Backup Guardian)': true,
+    };
   });
   const [isExecuting, setIsExecuting] = useState(false);
   const [executedTxHash, setExecutedTxHash] = useState<string | null>(null);
@@ -31,10 +37,13 @@ export const MultiSigModal: React.FC<MultiSigModalProps> = ({
   const isThresholdMet = currentSignatureCount >= threshold;
 
   const toggleSignature = (signerKey: string) => {
-    setSignatures((prev) => ({
-      ...prev,
-      [signerKey]: !prev[signerKey],
-    }));
+    setSignatures((prev) => {
+      const updated = { ...prev, [signerKey]: !prev[signerKey] };
+      try {
+        localStorage.setItem('glintfi_multisig_signatures', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
   };
 
   const handleExecuteMultiSigTx = () => {

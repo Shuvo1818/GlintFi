@@ -327,7 +327,20 @@ function App() {
   const [proofModalOpen, setProofModalOpen] = useState<boolean>(false);
   const [onboardingOpen, setOnboardingOpen] = useState<boolean>(false);
   const [multiSigOpen, setMultiSigOpen] = useState<boolean>(false);
-  const [isMultiSigActive, setIsMultiSigActive] = useState<boolean>(true);
+  const [isMultiSigActive, setIsMultiSigActive] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('glintfi_multisig_active');
+      if (saved !== null) return JSON.parse(saved);
+    } catch (e) {}
+    return true;
+  });
+
+  const handleToggleMultiSig = (active: boolean) => {
+    setIsMultiSigActive(active);
+    try {
+      localStorage.setItem('glintfi_multisig_active', JSON.stringify(active));
+    } catch (e) {}
+  };
   const [mainnetProofOpen, setMainnetProofOpen] = useState<boolean>(false);
   const [isGaslessSponsored, setIsGaslessSponsored] = useState<boolean>(true);
 
@@ -4385,7 +4398,7 @@ function App() {
         isOpen={multiSigOpen}
         onClose={() => setMultiSigOpen(false)}
         isMultiSigActive={isMultiSigActive}
-        setIsMultiSigActive={setIsMultiSigActive}
+        setIsMultiSigActive={handleToggleMultiSig}
         addToast={addToast}
       />
 
