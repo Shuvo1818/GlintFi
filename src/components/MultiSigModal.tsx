@@ -55,8 +55,8 @@ export const MultiSigModal: React.FC<MultiSigModalProps> = ({ isOpen, onClose, a
             <div>
               <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
                 Multi-Signature Vault Guard
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                  Level 6 Feature
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-amber-400" /> Multi-Sig Protection
                 </span>
               </h3>
               <p className="text-xs text-slate-400">Multi-party threshold approval logic (SEP-0001 compliant)</p>
