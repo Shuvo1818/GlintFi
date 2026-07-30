@@ -25,11 +25,6 @@
 
 ### B. Product Launch Thread on Twitter / X
 * **Launch Post URL**: [https://x.com/Shuvankar112/status/2082378112072077796](https://x.com/Shuvankar112/status/2082378112072077796)
-* **Engagements**: 50+ ecosystem followers reached across Stellar, Soroban, and Web3 builder communities.
-
-### B. Instagram Product Showcase Post
-* **Instagram Post URL**: [View Official Showcase Post on Instagram](https://www.instagram.com/p/DbYnP4UyfYu/?igsh=MXFxNzljNTdsamZhbQ==)
-* **Visual Media**: 3D Product Banner & Feature Showcase.
 
 ### C. YouTube Product Demo & Walkthrough
 * **Video Showcase**: [Watch Full Feature Video Demo](https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH)

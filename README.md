@@ -388,7 +388,7 @@ The app captures and displays user-friendly error banners for three specific fai
 | 50 | `GDPWMTPYUWBS4VPYGKZQUW65I7NVL7JIZ5VUNPVT3VB52C6XGRLDXDRD` | sXAU Metals Swap | 0.1000 sXAU | `fff036b3b44c9b074f7d69d3ac8f34ce167257caca2a3fe706c2b295944c3eac` | [StellarExpert Mainnet Link](https://stellar.expert/explorer/public/account/GDPWMTPYUWBS4VPYGKZQUW65I7NVL7JIZ5VUNPVT3VB52C6XGRLDXDRD) |
 
 3. **Social Media Growth Proof & Product Update Posts**:
-   * Published official launch post on Twitter/X reaching 50+ ecosystem followers: [View Twitter/X Post](https://x.com/Shuvankar112/status/2082378112072077796).
+   * Published official launch post on Twitter/X: [View Twitter/X Post](https://x.com/Shuvankar112/status/2082378112072077796).
    * Official product showcase post on Instagram (**700+ Followers & 150+ Likes**): [View Instagram Post](https://www.instagram.com/p/DbYnP4UyfYu/?igsh=MXFxNzljNTdsamZhbQ==).
    * Video walkthrough demo on YouTube: [Watch Demo Video](https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH).
 
