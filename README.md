@@ -389,6 +389,7 @@ The app captures and displays user-friendly error banners for three specific fai
 
 3. **Social Media Growth Proof & Product Update Posts**:
    * Published official launch post on Twitter/X reaching 50+ ecosystem followers: [View Twitter/X Post](https://x.com/Shuvankar112/status/2082378112072077796).
+   * Official product showcase post on Instagram: [View Instagram Post](https://www.instagram.com/p/DbYnP4UyfYu/?igsh=MXFxNzljNTdsamZhbQ==).
    * Video walkthrough demo on YouTube: [Watch Demo Video](https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH).
 
 4. **Product Improvement Commit History**:
