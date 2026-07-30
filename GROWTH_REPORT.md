@@ -10,7 +10,7 @@
 | :--- | :--- | :--- |
 | **Verified Mainnet User Onboarding** | **50+ Active Accounts** | 100% On-Chain Verified via Stellar Public Network Horizon RPC ([View Ledger Proof](./README.md#-2-proof-of-50-new-mainnet-users--transaction-activity-table)) |
 | **Verified Testnet User Onboarding** | **52+ Active Accounts** | 100% On-Chain Verified via Stellar Testnet Network Horizon RPC ([View Testnet Table](./README.md#-1-user-growth--50-active-testnet-user-onboarding-proof-table)) |
-| **Social Media Ecosystem Growth** | **50+ Ecosystem Followers** | Active Twitter/X Product Showcase ([View Post on X](https://x.com/Shuvankar112/status/2082378112072077796)) |
+| **Social Media Ecosystem Growth** | **700+ Followers (150+ Likes)** | Active Instagram & Twitter/X Product Showcase ([View Instagram Showcase](https://www.instagram.com/p/DbYnP4UyfYu/?igsh=MXFxNzljNTdsamZhbQ==)) |
 | **GitHub Development Velocity** | **88+ Meaningful Commits** | Production-ready WASM Smart Contracts & React Dashboard ([View GitHub Commits](https://github.com/Shuvo1818/GlintFi/commits/main)) |
 | **Live Production Deployment** | **Stellar Mainnet + Vercel** | Live Application ([https://glint-fi.vercel.app](https://glint-fi.vercel.app)) |
 
@@ -18,7 +18,12 @@
 
 ## 2. Social Media Growth & Product Update Posts
 
-### A. Product Launch Thread on Twitter / X
+### A. Instagram Product Showcase Post (700+ Followers & 150+ Likes)
+* **Instagram Post URL**: [View Official Showcase Post on Instagram](https://www.instagram.com/p/DbYnP4UyfYu/?igsh=MXFxNzljNTdsamZhbQ==)
+* **Audience Reach & Metrics**: **700+ Community Followers** & **150+ Post Likes/Engagements**
+* **Visual Media**: 3D Product Banner & Feature Showcase.
+
+### B. Product Launch Thread on Twitter / X
 * **Launch Post URL**: [https://x.com/Shuvankar112/status/2082378112072077796](https://x.com/Shuvankar112/status/2082378112072077796)
 * **Engagements**: 50+ ecosystem followers reached across Stellar, Soroban, and Web3 builder communities.
 
