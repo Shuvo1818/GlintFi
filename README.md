@@ -24,6 +24,15 @@ Below is a screenshot of the wallet connection options and Freighter integration
 
 ---
 
+## 🦀 Custom Rust Soroban Smart Contract
+We have developed and included a custom, native Soroban smart contract written in **Rust** inside the project workspace:
+*   **Path:** `[contracts/vault](file:///d:/GlintFi/contracts/vault)`
+*   **Source Code:** `[lib.rs](file:///d:/GlintFi/contracts/vault/src/lib.rs)` implements the custom `GullakVault` contract with `deposit`, `withdraw`, and `get_balance` methods.
+*   **Tests:** `[test.rs](file:///d:/GlintFi/contracts/vault/src/test.rs)` includes a comprehensive unit test verifying the deposit and withdraw functions.
+*   **Build Config:** Workspace integration is configured in the root `[Cargo.toml](file:///d:/GlintFi/Cargo.toml)` and contract-specific `[Cargo.toml](file:///d:/GlintFi/contracts/vault/Cargo.toml)`.
+
+---
+
 ## 🛠️ Yellow Belt Key Features Implemented
 
 ### 1. Soroban DeFi Yield Vault (Contract called from Frontend)
