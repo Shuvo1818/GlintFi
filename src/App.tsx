@@ -765,14 +765,15 @@ function App() {
       const paymentsResponse = await server.payments().forAccount(address).order("desc").limit(20).call();
       
       return paymentsResponse.records.map((r: any) => {
-        const isOutgoing = r.from === address;
+        let isOutgoing = r.from === address;
         let assetName = 'XLM';
-        if (r.asset_type !== 'native') {
-          assetName = r.asset_code || 'USDC';
-        }
-        
+        let amountStr = r.amount || r.starting_balance || '0';
         let desc = '';
+
         if (r.type === 'payment') {
+          if (r.asset_type !== 'native') {
+            assetName = r.asset_code || 'USDC';
+          }
           desc = isOutgoing 
             ? `Transferred ${assetName} to ${r.to.slice(0, 4)}...${r.to.slice(-4)}`
             : `Received ${assetName} from ${r.from.slice(0, 4)}...${r.from.slice(-4)}`;
@@ -781,15 +782,39 @@ function App() {
             ? `Created account ${r.account.slice(0, 4)}...${r.account.slice(-4)}`
             : `Account created by ${r.funder.slice(0, 4)}...${r.funder.slice(-4)}`;
           assetName = 'XLM';
+          amountStr = r.starting_balance || '0';
+        } else if (r.type === 'invoke_host_function') {
+          if (r.asset_balance_changes && r.asset_balance_changes.length > 0) {
+            const change = r.asset_balance_changes[0];
+            isOutgoing = change.from === address;
+            amountStr = change.amount || '0';
+            
+            if (change.asset_type === 'native') {
+              assetName = 'XLM';
+            } else {
+              const assetStr = change.asset || '';
+              assetName = change.asset_code || assetStr.split(':')[0] || 'USDC';
+            }
+            
+            desc = isOutgoing 
+              ? `Transferred ${assetName} to ${change.to.slice(0, 4)}...${change.to.slice(-4)}`
+              : `Received ${assetName} from ${change.from.slice(0, 4)}...${change.from.slice(-4)}`;
+          } else {
+            desc = `Blockchain transaction (${r.type})`;
+            assetName = 'USDC';
+            amountStr = '0';
+          }
         } else {
           desc = `Blockchain transaction (${r.type})`;
+          assetName = 'USDC';
+          amountStr = '0';
         }
         
         return {
           id: r.id,
           type: 'Transfer',
           description: desc,
-          amount: parseFloat(r.amount || r.starting_balance || '0').toString(),
+          amount: parseFloat(amountStr).toString(),
           asset: assetName,
           date: formatLocalTime(r.created_at),
           hash: r.transaction_hash,
@@ -1099,6 +1124,46 @@ function App() {
       clearInterval(interval);
     };
   }, [stellarAddress, networkMode, walletConnected, currentUser]);
+
+  // Real-time Event Integration: SSE stream to listen to live ledger payments/invocations
+  useEffect(() => {
+    if (!walletConnected || !stellarAddress) return;
+
+    console.log(`Setting up real-time SSE payment stream for: ${stellarAddress}`);
+    const horizonEndpoint = networkMode === 'public' 
+      ? 'https://horizon.stellar.org'
+      : 'https://horizon-testnet.stellar.org';
+      
+    const server = new Horizon.Server(horizonEndpoint);
+    
+    let closeStream: (() => void) | null = null;
+    
+    try {
+      closeStream = server.payments()
+        .forAccount(stellarAddress)
+        .cursor('now')
+        .stream({
+          onmessage: (payment: any) => {
+            console.log('Real-time ledger event received:', payment);
+            addToast('On-Chain Event Received', 'Ledger updated with new payment event.', 'info');
+            // Silent refresh of balances & history
+            fetchAccountBalances(stellarAddress, networkMode, true);
+          },
+          onerror: (err: any) => {
+            console.warn('SSE stream connection re-establishing...', err);
+          }
+        });
+    } catch (err) {
+      console.error("Failed to initialize SSE stream:", err);
+    }
+
+    return () => {
+      if (closeStream) {
+        console.log("Closing SSE stream...");
+        closeStream();
+      }
+    };
+  }, [stellarAddress, networkMode, walletConnected]);
 
   // Persist transaction history
   useEffect(() => {
