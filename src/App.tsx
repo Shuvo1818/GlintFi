@@ -1140,13 +1140,13 @@ function App() {
     let closeStream: (() => void) | null = null;
     
     try {
-      closeStream = server.payments()
+      closeStream = server.operations()
         .forAccount(stellarAddress)
         .cursor('now')
         .stream({
-          onmessage: (payment: any) => {
-            console.log('Real-time ledger event received:', payment);
-            addToast('On-Chain Event Received', 'Ledger updated with new payment event.', 'info');
+          onmessage: (op: any) => {
+            console.log('Real-time ledger operation received:', op);
+            addToast('On-Chain Event Received', 'Ledger updated with new on-chain operation.', 'info');
             // Silent refresh of balances & history
             fetchAccountBalances(stellarAddress, networkMode, true);
             loadUserHistory(auth.currentUser?.uid || 'anonymous', stellarAddress, networkMode);
