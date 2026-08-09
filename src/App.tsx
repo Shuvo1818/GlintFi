@@ -1149,6 +1149,7 @@ function App() {
             addToast('On-Chain Event Received', 'Ledger updated with new payment event.', 'info');
             // Silent refresh of balances & history
             fetchAccountBalances(stellarAddress, networkMode, true);
+            loadUserHistory(auth.currentUser?.uid || 'anonymous', stellarAddress, networkMode);
           },
           onerror: (err: any) => {
             console.warn('SSE stream connection re-establishing...', err);
