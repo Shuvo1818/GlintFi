@@ -61,6 +61,9 @@ npm run dev
 ### 2. Successful Testnet Transaction & Live Ledger Logs
 <img width="1920" height="1089" alt="{09C155A8-1CA2-4481-9659-8639971F7C8F}" src="https://github.com/user-attachments/assets/805e1a7a-eef9-4b19-9c0d-79410f9722a6" />
 
+### 3. Multi-Wallet Connection Support (Freighter & Albedo Modal)
+<img width="1920" height="1200" alt="{78CCDFA0-A5EC-4C5B-870B-A46B565DFFDC}" src="https://github.com/user-attachments/assets/0a8a64d3-726d-49f6-a00a-2e7d544f1466" />
+
 
 ### 🥈 Level 2: Yellow Belt Deliverables
 1. **Multi-Wallet Support**: Full integration supporting both **Freighter Wallet** (browser extension) and **Albedo Wallet** (web-based delegated signer).
