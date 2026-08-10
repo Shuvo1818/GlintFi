@@ -3905,7 +3905,7 @@ function App() {
                   </div>
                 </div>
 
-                <div className="p-6 flex-1 max-h-[520px] overflow-y-auto scrollbar-thin">
+                <div className="p-6 flex-1">
                   {ledgerTab === 'activity' ? (
                     <div className="overflow-x-auto">
                       {transactions.length === 0 ? (
@@ -3928,7 +3928,7 @@ function App() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-900">
-                            {transactions.map((tx) => (
+                            {transactions.slice(0, 8).map((tx) => (
                               <tr key={tx.id} className="text-slate-300 hover:bg-slate-900/30 transition">
                                 <td className="py-3.5 pr-2 font-sans font-bold flex items-center gap-2">
                                   <span className={`h-1.5 w-1.5 rounded-full ${
@@ -3988,7 +3988,7 @@ function App() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {receivedGifts.map((gift) => (
+                        {receivedGifts.slice(0, 4).map((gift) => (
                           <div key={gift.id} className="p-4 bg-slate-950/60 border border-slate-900 rounded-xl relative overflow-hidden group hover:border-amber-500/20 transition duration-300">
                             <div className="absolute top-0 right-0 w-16 h-16 bg-amber-500/[0.03] rounded-full blur-xl group-hover:bg-amber-500/[0.06] transition-colors"></div>
                             
