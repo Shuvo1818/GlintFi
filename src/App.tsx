@@ -3049,11 +3049,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans relative overflow-x-hidden flex flex-col justify-between">
-      
-      {/* Glow backgrounds */}
-      <div className="absolute top-[-15%] left-[-10%] w-[60%] h-[50%] rounded-full stellar-glow pointer-events-none z-0"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[50%] rounded-full gold-glow pointer-events-none z-0"></div>
-      <div className="absolute top-[40%] right-[10%] w-[40%] h-[40%] rounded-full silver-glow pointer-events-none z-0"></div>
 
       {/* Floating toasts */}
       <div className="fixed top-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none">
