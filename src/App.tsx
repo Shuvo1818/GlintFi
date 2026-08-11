@@ -32,8 +32,8 @@ import {
   Trash2,
   Copy
 } from 'lucide-react';
-import { isConnected, requestAccess, signTransaction as freighterSignTransaction } from '@stellar/freighter-api';
-import albedo from '@albedo-link/intent';
+import { checkFreighterConnection, getFreighterAddress, signWithFreighter, connectAlbedoWallet, signWithAlbedo } from './wallet';
+import { ConnectWallet } from './ConnectWallet';
 import { auth, db } from './firebase';
 import { 
   createUserWithEmailAndPassword, 
@@ -226,9 +226,7 @@ function App() {
   const [stellarAddress, setStellarAddress] = useState<string>('');
   const [connectionType, setConnectionType] = useState<'freighter' | 'albedo' | 'manual' | null>(null);
   const [networkMode, setNetworkMode] = useState<'public' | 'testnet'>('testnet');
-  const [walletModalOpen, setWalletModalOpen] = useState<boolean>(false);
   const [isFetchingBalances, setIsFetchingBalances] = useState<boolean>(false);
-  const [manualAddressInput, setManualAddressInput] = useState<string>('');
 
   const [activeTab, setActiveTab] = useState<'swap' | 'gullak' | 'loan' | 'send'>('swap');
   const [chartAsset, setChartAsset] = useState<'sXAU' | 'sXAG'>('sXAU');
@@ -1364,152 +1362,36 @@ function App() {
 
   // ---------------------------------------------------------
   // Albedo Signer & Connection helpers (using @albedo-link/intent SDK)
+  // Albedo / Freighter Signer wrapper
   const signTransaction = async (xdr: string, opts: { networkPassphrase: string }): Promise<{ signedTxXdr: string; error?: string }> => {
     if (connectionType === 'freighter') {
-      return freighterSignTransaction(xdr, opts) as any;
-    } else if (connectionType === 'albedo') {
       const isTestnet = opts.networkPassphrase === Networks.TESTNET;
       try {
-        const res = await albedo.tx({
-          xdr,
-          network: isTestnet ? 'testnet' : 'public'
-        });
-        if (res && res.signed_envelope_xdr) {
-          return { signedTxXdr: res.signed_envelope_xdr };
-        } else {
-          return { signedTxXdr: '', error: 'Failed to receive signed transaction envelope.' };
-        }
+        const signedXdr = await signWithFreighter(xdr, isTestnet ? 'TESTNET' : 'PUBLIC', opts.networkPassphrase);
+        return { signedTxXdr: signedXdr };
       } catch (err: any) {
-        console.warn('Albedo signing error:', err);
-        return { signedTxXdr: '', error: err.message || 'User cancelled signing.' };
+        return { signedTxXdr: '', error: err.message || 'Freighter signing rejected.' };
+      }
+    } else if (connectionType === 'albedo') {
+      try {
+        const signedEnvelope = await signWithAlbedo(xdr, stellarAddress, opts.networkPassphrase);
+        return { signedTxXdr: signedEnvelope };
+      } catch (err: any) {
+        return { signedTxXdr: '', error: err.message || 'Albedo signing rejected.' };
       }
     } else {
-      return { error: 'No wallet connected.', signedTxXdr: '' };
+      return { error: 'No active signer connected.', signedTxXdr: '' };
     }
   };
 
-  const connectAlbedo = async () => {
-    try {
-      const res = await albedo.publicKey({
-        token: 'glintfi_auth_token'
-      });
-      
-      if (res && res.pubkey) {
-        const connectedAddress = res.pubkey;
-        setStellarAddress(connectedAddress);
-        setConnectionType('albedo');
-        setWalletConnected(true);
-        localStorage.setItem('glintfi_stellar_address', connectedAddress);
-        localStorage.setItem('glintfi_connection_type', 'albedo');
-        setWalletModalOpen(false);
-        addToast('Wallet Connected', 'Connected via Albedo.', 'success');
-
-        fetchAccountBalances(connectedAddress, networkMode, true);
-        if (auth.currentUser) {
-          loadUserHistory(auth.currentUser.uid, connectedAddress, networkMode);
-        } else {
-          const storedDeleted = localStorage.getItem(`glintfi_deleted_txs_${connectedAddress}_${networkMode}`);
-          const localDeleted: string[] = storedDeleted ? JSON.parse(storedDeleted) : [];
-          const delIds = new Set<string>(localDeleted);
-          setDeletedTxIds(delIds);
-
-          const storedTxs = localStorage.getItem(`glintfi_txs_${connectedAddress}_${networkMode}`);
-          const localTxs: TransactionRecord[] = storedTxs ? JSON.parse(storedTxs) : [];
-          const initialMerged = localTxs.filter(tx => !delIds.has(tx.id) && !delIds.has(tx.hash));
-          setTransactions(initialMerged);
-          setHistoryLoaded(true);
-        }
-      }
-    } catch (err: any) {
-      console.warn('Albedo connection error:', err);
-      addToast('Albedo Connection Failed', err.message || 'Login request rejected.', 'warning');
-    }
-  };
-
-  const connectFreighter = async () => {
-    try {
-      const hasWindowStellar = !!(window as any).stellar;
-      const hasWindowFreighter = !!(window as any).freighter;
-      
-      let isConnectedStatus = false;
-      try {
-        const connectionCheck = await isConnected();
-        isConnectedStatus = !!connectionCheck?.isConnected;
-      } catch (e) {
-        console.warn('Freighter isConnected check failed:', e);
-      }
-
-      if (!hasWindowStellar && !hasWindowFreighter && !isConnectedStatus) {
-        addToast('Freighter Not Installed', 'Opening Freighter download page. Please install the extension in Edge to connect.', 'warning');
-        window.open('https://www.freighter.app/', '_blank');
-        return;
-      }
-      
-      const addressRes = await requestAccess();
-      if (addressRes && addressRes.address) {
-        const connectedAddress = addressRes.address;
-        setStellarAddress(connectedAddress);
-        setWalletConnected(true);
-        setConnectionType('freighter');
-        localStorage.setItem('glintfi_stellar_address', connectedAddress);
-        localStorage.setItem('glintfi_connection_type', 'freighter');
-        setWalletModalOpen(false);
-        addToast('Wallet Connected', 'Connected via Freighter.', 'success');
-
-        // Force fetch balance and history immediately to bypass React state batching delay
-        fetchAccountBalances(connectedAddress, networkMode, true);
-        if (auth.currentUser) {
-          loadUserHistory(auth.currentUser.uid, connectedAddress, networkMode);
-        } else {
-          const storedDeleted = localStorage.getItem(`glintfi_deleted_txs_${connectedAddress}_${networkMode}`);
-          const localDeleted: string[] = storedDeleted ? JSON.parse(storedDeleted) : [];
-          const delIds = new Set<string>(localDeleted);
-          setDeletedTxIds(delIds);
-
-          const storedTxs = localStorage.getItem(`glintfi_txs_${connectedAddress}_${networkMode}`);
-          const localTxs: TransactionRecord[] = storedTxs ? JSON.parse(storedTxs) : [];
-          
-          fetchOnChainHistory(connectedAddress, networkMode).then((onChainTxs) => {
-            const mergedTxs = localTxs.filter(tx => !delIds.has(tx.id) && !delIds.has(tx.hash));
-            onChainTxs.forEach((ocTx) => {
-              if (!delIds.has(ocTx.id) && !delIds.has(ocTx.hash) && !mergedTxs.some((tx) => tx.hash === ocTx.hash)) {
-                mergedTxs.push(ocTx);
-              }
-            });
-            mergedTxs.sort((a, b) => b.date.localeCompare(a.date));
-            setTransactions(mergedTxs);
-            setHistoryLoaded(true);
-          }).catch(() => {
-            setTransactions(localTxs.filter(tx => !delIds.has(tx.id) && !delIds.has(tx.hash)));
-            setHistoryLoaded(true);
-          });
-        }
-      } else if (addressRes && addressRes.error) {
-        throw new Error(addressRes.error);
-      }
-    } catch (err: any) {
-      console.warn('Freighter connect error:', err);
-      addToast('Freighter Connection Failed', err.message || 'Login request rejected.', 'warning');
-    }
-  };
-
-  const connectManual = (e: React.FormEvent) => {
-    e.preventDefault();
-    const address = manualAddressInput.trim();
-    if (!address.startsWith('G') || address.length !== 56) {
-      addToast('Invalid Stellar Key', 'Address must start with "G" and be 56 characters long.', 'warning');
-      return;
-    }
+  const handleConnectWallet = (address: string, type: 'freighter' | 'albedo' | 'manual') => {
     setStellarAddress(address);
+    setConnectionType(type);
     setWalletConnected(true);
-    setConnectionType('manual');
     localStorage.setItem('glintfi_stellar_address', address);
-    localStorage.setItem('glintfi_connection_type', 'manual');
-    setWalletModalOpen(false);
-    setManualAddressInput('');
-    addToast('Address Loaded', 'Viewing read-only ledger balances.', 'success');
+    localStorage.setItem('glintfi_connection_type', type);
 
-    // Force fetch balance and history immediately to bypass React state batching delay
+    // Trigger immediate data fetching for the newly connected wallet
     fetchAccountBalances(address, networkMode, true);
     if (auth.currentUser) {
       loadUserHistory(auth.currentUser.uid, address, networkMode);
@@ -1536,6 +1418,11 @@ function App() {
         setTransactions(localTxs.filter(tx => !delIds.has(tx.id) && !delIds.has(tx.hash)));
         setHistoryLoaded(true);
       });
+
+      const storedSips = localStorage.getItem(`glintfi_sips_${address}_${networkMode}`);
+      const storedGifts = localStorage.getItem(`glintfi_gifts_${address}_${networkMode}`);
+      setSips(storedSips ? JSON.parse(storedSips) : []);
+      setReceivedGifts(storedGifts ? JSON.parse(storedGifts) : []);
     }
   };
 
@@ -3433,79 +3320,7 @@ function App() {
         </div>
       )}
 
-      {/* Connect Wallet Modal */}
-      {walletModalOpen && (
-        <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl relative animate-zoom-in">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-lg text-slate-100 flex items-center gap-2">
-                <Wallet className="w-5 h-5 text-indigo-400" />
-                <span>Connect Stellar Account</span>
-              </h3>
-              <button 
-                onClick={() => setWalletModalOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-200 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
 
-            <div className="space-y-4">
-              <button
-                onClick={connectFreighter}
-                className="w-full p-4 bg-slate-950 border border-slate-850 hover:border-indigo-500/50 rounded-xl text-left flex items-center justify-between transition duration-200 group"
-              >
-                <div>
-                  <h4 className="font-bold text-sm text-slate-100 group-hover:text-indigo-400 transition">Connect Freighter</h4>
-                  <p className="text-xs text-slate-400 mt-1">Access using Stellar official extension wallet.</p>
-                </div>
-                <div className="p-2 rounded-lg bg-slate-900 text-slate-400 group-hover:text-indigo-400">
-                  <ExternalLink className="w-4 h-4" />
-                </div>
-              </button>
-
-              <button
-                onClick={connectAlbedo}
-                className="w-full p-4 bg-slate-950 border border-slate-850 hover:border-indigo-500/50 rounded-xl text-left flex items-center justify-between transition duration-200 group"
-              >
-                <div>
-                  <h4 className="font-bold text-sm text-slate-100 group-hover:text-indigo-400 transition">Connect Albedo</h4>
-                  <p className="text-xs text-slate-400 mt-1">Access using web-based Albedo key vault (no extension needed).</p>
-                </div>
-                <div className="p-2 rounded-lg bg-slate-900 text-slate-400 group-hover:text-indigo-400">
-                  <ExternalLink className="w-4 h-4" />
-                </div>
-              </button>
-
-              <div className="relative flex py-2 items-center">
-                <div className="flex-grow border-t border-slate-850"></div>
-                <span className="flex-shrink mx-3 text-slate-500 text-[10px] uppercase font-bold tracking-widest">Or View Any Key</span>
-                <div className="flex-grow border-t border-slate-850"></div>
-              </div>
-
-              <form onSubmit={connectManual} className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Paste Stellar Public Key (G...)</label>
-                  <input
-                    type="text"
-                    required
-                    value={manualAddressInput}
-                    onChange={(e) => setManualAddressInput(e.target.value)}
-                    placeholder="e.g. GB32...4K9Z"
-                    className="w-full px-3 py-2.5 rounded-lg glass-input text-xs font-mono"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-lg text-xs tracking-wider uppercase transition shadow-lg shadow-indigo-600/10"
-                >
-                  Load Ledger View
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ---------------------------------------------------------
           Navbar / Header
@@ -3623,60 +3438,16 @@ function App() {
               </div>
             )}
 
-            {/* Wallet Info Display */}
-            {walletConnected ? (
-              <div className="flex items-center gap-2">
-                <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                  connectionType === 'freighter' 
-                    ? 'bg-indigo-950 text-indigo-300 border border-indigo-500/20' 
-                    : connectionType === 'albedo'
-                    ? 'bg-amber-950 text-amber-300 border border-amber-500/20'
-                    : 'bg-slate-900 text-slate-400 border border-slate-800'
-                }`}>
-                  {connectionType === 'freighter' ? 'Freighter' : connectionType === 'albedo' ? 'Albedo' : 'Read-Only'}
-                </span>
-                <div className="flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-slate-900/50 p-1 pl-2.5 shadow-lg">
-                  <div className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span 
-                      className="font-mono text-xs text-slate-350 font-semibold cursor-help"
-                      title={stellarAddress}
-                    >
-                      {stellarAddress.slice(0, 4)}...{stellarAddress.slice(-4)}
-                    </span>
-                  </div>
-                  
-                  {/* Copy Button */}
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(stellarAddress);
-                      addToast('Address Copied', 'Stellar public key copied to clipboard!', 'success');
-                    }}
-                    className="p-1 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-slate-800 transition cursor-pointer"
-                    title="Copy Full Address"
-                  >
-                    <Copy className="w-3 h-3" />
-                  </button>
-
-                  {/* Disconnect Button */}
-                  <button 
-                    onClick={disconnectWallet}
-                    className="p-1 rounded-lg text-slate-500 hover:text-rose-455 hover:bg-slate-800 transition cursor-pointer"
-                    title="Disconnect Wallet"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button 
-                onClick={() => setWalletModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-slate-100 text-sm font-semibold transition shadow-lg shadow-indigo-950/50"
-              >
-                <Wallet className="w-4 h-4" />
-                <span>Connect Wallet</span>
-              </button>
-            )}
+            {/* Wallet Connect Component */}
+            <ConnectWallet
+              walletConnected={walletConnected}
+              stellarAddress={stellarAddress}
+              connectionType={connectionType}
+              networkMode={networkMode}
+              onConnect={handleConnectWallet}
+              onDisconnect={disconnectWallet}
+              addToast={addToast}
+            />
           </div>
         </div>
       </header>
