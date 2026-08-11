@@ -14,6 +14,9 @@ GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)**.
 🔗 **Click here to test the live platform:**https://glint-fi.vercel.app/
 ---
 
+## 📺 Product Walkthrough Video
+🔗 **Watch the full features & interaction demo on YouTube:** https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH
+
 ## 🚀 Key Features
 
 *   **Multi-Asset Web3 Dashboard:** Provides real-time asset balance tracking for Stellar Lumens (XLM), USDC, Synthetic Gold (sXAU), and Synthetic Silver (sXAG).
