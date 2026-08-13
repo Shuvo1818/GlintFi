@@ -160,9 +160,4 @@ The app captures and displays user-friendly error banners for three specific fai
 
 ---
 
-### 📸 Proof of Successful Build & CI/CD Pipeline
-Below is the verification screenshot showing the successful GitHub Actions run and all 4 Vitest unit tests passing green:
-
-![CI/CD Pipeline Success](cicd_success.png)
-
 
