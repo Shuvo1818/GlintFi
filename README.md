@@ -71,7 +71,10 @@ npm run dev
 ### 3. Multi-Wallet Connection Support (Freighter & Albedo)
 <img width="1920" height="1089" alt="{99433082-851C-49E8-94D1-C019C2C0485D}" src="https://github.com/user-attachments/assets/6d9cc019-d4db-4790-bfc7-fe7ea7b1da19" />
 
+### 📸 Proof of Successful Build & CI/CD Pipeline
+Below is the verification screenshot showing the successful GitHub Actions run and all 4 Vitest unit tests passing green:
 
+![CI/CD Pipeline Success](cicd_success.png)
 
 
 ### 🥈 Level 2: Yellow Belt Deliverables
