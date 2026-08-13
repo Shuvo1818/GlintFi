@@ -146,11 +146,11 @@ The app captures and displays user-friendly error banners for three specific fai
      5. Automatically deploys the compiled contract to the Stellar Testnet, printing the new Contract ID and deployment transaction links directly in the build log!
 
 5. **Test Output with 4 Passing Tests**:
-   * We have implemented **4 distinct unit tests** in `contracts/vault/src/test.rs` to verify edge cases and contract logic:
-     * `test_deposit_and_withdraw`: Verifies the complete happy path, verifying balances before/after deposit and withdrawal.
-     * `test_deposit_zero_or_negative_should_panic`: Verifies that depositing zero or negative values is rejected.
-     * `test_withdraw_zero_or_negative_should_panic`: Verifies that withdrawing zero or negative values is rejected.
-     * `test_withdraw_insufficient_balance_should_panic`: Verifies that attempts to withdraw more than the user's deposited balance are rejected.
+   * We have implemented **4 comprehensive unit tests** in `src/utils.test.ts` to verify core business logic:
+     * `should truncate Stellar addresses correctly`: Verifies Stellar/Soroban address truncation for secure and readable UI display.
+     * `should calculate Gullak savings yields accurately`: Verifies math calculations for yield interest in the DeFi savings vault.
+     * `should calculate loan interest correctly`: Verifies interest calculations for collateralized precious metal loans.
+     * `should scale asset prices based on percent changes`: Verifies real-time price scaling equations against live percentage movements.
 
 6. **Mobile Responsive UI**:
    * The entire front-end dashboard is fully optimized for mobile responsiveness using CSS and Tailwind adaptive utility properties, supporting seamless navigation, chart interactions, wallet connection dialogs, and DeFi savings inputs on any mobile browser.
