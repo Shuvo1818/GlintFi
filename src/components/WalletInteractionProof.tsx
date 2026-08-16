@@ -152,10 +152,7 @@ export const WalletInteractionProof: React.FC<WalletInteractionProofProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-              Onboarding & 10+ Wallet Interaction Proof
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
-                Level 4 Mandatory Proof
-              </span>
+              Verified Onboarding & Wallet Interaction Ledger
             </h3>
             <p className="text-xs text-slate-400">Verified Testnet transactions & user interactions on Stellar network</p>
           </div>
@@ -285,7 +282,7 @@ export const WalletInteractionProof: React.FC<WalletInteractionProofProps> = ({
         <div className="flex items-center justify-between border-b border-slate-850 pb-3">
           <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
             <Users className="w-5 h-5 text-indigo-400" />
-            <span>User Onboarding & 10+ Wallet Interaction Proof</span>
+            <span>Onboarding & Verified Wallet Interaction Ledger</span>
           </h3>
           {onClose && (
             <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-200 rounded-lg cursor-pointer">
