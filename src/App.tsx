@@ -4255,16 +4255,11 @@ function App() {
                   {/* TAB CONTENT */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     {activeTab === 'swap' && renderSwapForm()}
-                      {activeTab === 'swap' && renderSwapForm()}
                     {activeTab === 'gullak' && renderGullakForm()}
                     {activeTab === 'loan' && renderLoanForm()}
                     {activeTab === 'send' && renderSendForm()}
                   </div>
                 </div>
-                {/* Level 4 Mandatory Proof of 10+ Wallet Interactions */}
-                <section className="glass-card rounded-2xl p-6 border border-slate-900 relative mt-6">
-                  <WalletInteractionProof isEmbedded={true} />
-                </section>
               </section>
 
             </div>

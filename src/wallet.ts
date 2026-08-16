@@ -1,4 +1,4 @@
-import { isConnected, getAddress, signTransaction } from '@stellar/freighter-api';
+import { isConnected, getAddress, requestAccess, signTransaction } from '@stellar/freighter-api';
 import albedo from '@albedo-link/intent';
 
 /**
@@ -17,18 +17,29 @@ export const checkFreighterConnection = async (): Promise<boolean> => {
 
 /**
  * Retrieves the connected user's public address from Freighter.
- * Used for AI grading compliance (Stellar White Belt).
+ * Prompts permission popup via requestAccess() if needed.
  */
 export const getFreighterAddress = async (): Promise<string> => {
   try {
-    const res = await getAddress();
-    if (!res || !res.address) {
-      throw new Error('No address returned from Freighter.');
+    // 1. Try requestAccess() to prompt the extension popup for authorization
+    const accessRes: any = await requestAccess();
+    if (accessRes && typeof accessRes === 'object' && accessRes.address) {
+      return accessRes.address;
     }
-    return res.address;
+    if (typeof accessRes === 'string' && accessRes.startsWith('G')) {
+      return accessRes;
+    }
+
+    // 2. Fallback to getAddress()
+    const res = await getAddress();
+    if (res && res.address) {
+      return res.address;
+    }
+
+    throw new Error('No address returned from Freighter. Please approve connection request in your extension.');
   } catch (err: any) {
-    console.error('Freighter getAddress failed:', err);
-    throw err;
+    console.error('Freighter connection failed:', err);
+    throw new Error(err.message || 'Freighter connection failed or was rejected.');
   }
 };
 
