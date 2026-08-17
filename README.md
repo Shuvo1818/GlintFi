@@ -397,6 +397,13 @@ The app captures and displays user-friendly error banners for three specific fai
 4. **Product Improvement Commit History**:
    * Documented commit evolution across all project milestones in [`GROWTH_REPORT.md`](./GROWTH_REPORT.md).
 
+5. **User Feedback Driven Product Iterations**:
+   * **Auto-Slippage & Price Impact Guard**: Implemented live auto-slippage estimator for sXAU/sXAG synthetic metal swaps based on user feedback.
+   * **Multi-Signature Vault Guard**: Added multi-sig threshold approval modal for high-value vault withdrawals (`MultiSigModal.tsx`).
+   * **Interactive Onboarding Walkthrough**: Built interactive onboarding guide walkthrough (`OnboardingGuide.tsx`) for new Web3 users.
+   * **Protocol Analytics & Yield Comparisons**: Added real-time sXAU vs XLM yield comparison charts (`AnalyticsModal.tsx`).
+   * **Multi-Wallet Support**: Integrated dual Freighter & Albedo wallet connection providers in `src/wallet.ts`.
+
 ---
 
 ## 📄 License
