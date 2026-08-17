@@ -398,11 +398,11 @@ The app captures and displays user-friendly error banners for three specific fai
    * Documented commit evolution across all project milestones in [`GROWTH_REPORT.md`](./GROWTH_REPORT.md).
 
 5. **User Feedback Driven Product Iterations**:
-   * **Auto-Slippage & Price Impact Guard**: Implemented live auto-slippage estimator for sXAU/sXAG synthetic metal swaps based on user feedback.
-   * **Multi-Signature Vault Guard**: Added multi-sig threshold approval modal for high-value vault withdrawals (`MultiSigModal.tsx`).
-   * **Interactive Onboarding Walkthrough**: Built interactive onboarding guide walkthrough (`OnboardingGuide.tsx`) for new Web3 users.
-   * **Protocol Analytics & Yield Comparisons**: Added real-time sXAU vs XLM yield comparison charts (`AnalyticsModal.tsx`).
-   * **Multi-Wallet Support**: Integrated dual Freighter & Albedo wallet connection providers in `src/wallet.ts`.
+   * **Auto-Slippage & Price Impact Guard**: Implemented live auto-slippage estimator for sXAU/sXAG synthetic metal swaps based on user feedback ([Commit `7c5def1`](https://github.com/Shuvo1818/GlintFi/commit/7c5def1)).
+   * **Multi-Signature Vault Guard**: Added multi-sig threshold approval modal for high-value vault withdrawals (`MultiSigModal.tsx`, [Commit `e902641`](https://github.com/Shuvo1818/GlintFi/commit/e902641)).
+   * **Interactive Onboarding Walkthrough**: Built interactive onboarding guide walkthrough (`OnboardingGuide.tsx`, [Commit `dc4efab`](https://github.com/Shuvo1818/GlintFi/commit/dc4efab)).
+   * **Protocol Analytics & Yield Comparisons**: Added real-time sXAU vs XLM yield comparison charts (`AnalyticsModal.tsx`, [Commit `4dfb507`](https://github.com/Shuvo1818/GlintFi/commit/4dfb507)).
+   * **Multi-Wallet Support**: Integrated dual Freighter & Albedo wallet connection providers in `src/wallet.ts` ([Commit `6d6ca3c`](https://github.com/Shuvo1818/GlintFi/commit/6d6ca3c)).
 
 ---
 
