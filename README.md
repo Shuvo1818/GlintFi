@@ -15,8 +15,8 @@ GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)**.
 | Deliverable Resource | Direct Verification Link | Description / Details |
 | :--- | :--- | :--- |
 | 🚀 **Live Web Application** | [https://glint-fi.vercel.app](https://glint-fi.vercel.app/) | Production-ready dApp deployed on Vercel |
-| ⚡ **Mainnet Contract Explorer** | [StellarExpert Mainnet Contract](https://stellar.expert/explorer/public/contract/CDZZUSGT7A6NOXUBBFY5MJJOMBIVN6ZPTOHYYMMZ3RGVG24KURQ6TA6K) | Verifiable Soroban WASM Contract ID on Stellar Mainnet |
-| 🧪 **Testnet Contract Explorer** | [StellarExpert Testnet Contract](https://stellar.expert/explorer/testnet/contract/CDZZWMDL5WIQGZOREZLYDIZ5YNDE3BDOBMGBBKFRNPJOMCK6ACS3TVZN) | Verifiable Soroban WASM Contract ID on Stellar Testnet |
+| ⚡ **Mainnet Contract Explorer** | [StellarExpert Mainnet Contract](https://stellar.expert/explorer/public/contract/CA226E6MH7GUKRAAGDWWPFVAPS6A46RENSGS6KFDWWQZLOG434I6BJSM) | Verifiable Soroban WASM Contract ID on Stellar Mainnet |
+| 🧪 **Testnet Contract Explorer** | [StellarExpert Testnet Contract](https://stellar.expert/explorer/testnet/contract/CCVAULT3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYS3) | Verifiable Soroban WASM Contract ID on Stellar Testnet |
 | 📜 **Proof of Deployment** | [DEPLOYMENT.md](./DEPLOYMENT.md) | Official Mainnet & Testnet Soroban WASM verification report |
 | 🐤 **Twitter/X Showcase Post** | [View Launch Post on X](https://x.com/Shuvankar112/status/2082378112072077796) | Official product launch thread & showcase |
 | 📸 **Instagram Showcase Post** | [View Post on Instagram](https://www.instagram.com/p/DbYnP4UyfYu/?igsh=MXFxNzljNTdsamZhbQ==) | Product launch banner & feature showcase |
