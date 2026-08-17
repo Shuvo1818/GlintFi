@@ -126,7 +126,7 @@ const CANONICAL_ISSUERS = {
   }
 };
 
-const CUSTOM_VAULT_CONTRACT_ID = 'CA225FQSDZIELXZCHP55EXW3W2IV3UPLDYB3CIPBI6TCBVWML7HV2SKO';
+const CUSTOM_VAULT_CONTRACT_ID = 'CDZZUSGT7A6NOXUBBFY5MJJOMBIVN6ZPTOHYYMMZ3RGVG24KURQ6TA6K';
 
 // ---------------------------------------------------------
 // Base Market Data Series (Will be scaled to live prices)
