@@ -17,6 +17,11 @@ GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)**.
 ## 📺 Product Walkthrough Video
 🔗 **Watch the full features & interaction demo on YouTube:** https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH
 
+#### 📸 3. User Feedback & 10+ Wallet Interaction Proof
+
+ [Give feedback](https://docs.google.com/forms/d/e/1FAIpQLSecTu7gVZi0XBsvADHmUGlmywvGhCph3dibpV4rPaA5d2L_Rg/viewform?usp=publish-editor).
+ [View User Feedback Document](https://docs.google.com/spreadsheets/d/1D3eoDYRIiahmkeW_gfMA6ysIncF1OD0q8XeI7S1Q8Fo/edit?usp=sharing)
+ 
 ## 🚀 Key Features
 
 *   **Multi-Asset Web3 Dashboard:** Provides real-time asset balance tracking for Stellar Lumens (XLM), USDC, Synthetic Gold (sXAU), and Synthetic Silver (sXAG).
@@ -82,9 +87,6 @@ Below is the screenshot showing the fully responsive header, layout, and modal a
 ![Mobile Responsive UI] <img width="400" height="900" alt="Screenshot_20260718-011150 (1)" src="https://github.com/user-attachments/assets/0264d30d-8a1a-4813-8613-056a3ea41491" /> <img width="400" height="900" alt="Screenshot_20260718-011142 (1)" src="https://github.com/user-attachments/assets/87e118ac-9418-4914-bb6e-f2f7639d75f2" />
 
 #### 📸 Analytics & Monitoring Setup <img width="1920" height="1090" alt="{E5F8F299-5630-496E-985A-4B92A6DF2AB0}" src="https://github.com/user-attachments/assets/830d3ed6-f981-46f0-a22d-3d226f9e8776" />
-
-#### 📸 3. User Feedback & 10+ Wallet Interaction Proof <img width="1920" height="1091" alt="{CD593700-1523-4036-895D-E81CACD88D86}" src="https://github.com/user-attachments/assets/01c4238e-07d3-4897-b01d-7e7969e6200a" />  <img width="1920" height="1086" alt="{6BD28165-DE70-4425-B01C-FE303FD8F3BE}" src="https://github.com/user-attachments/assets/92c35a29-88b3-4b11-a064-5f03295df162" />
-
 
 
 ### 🥈 Level 2: Yellow Belt Deliverables
