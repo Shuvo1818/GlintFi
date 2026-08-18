@@ -85,7 +85,7 @@ Below is the verification screenshot showing the successful GitHub Actions run a
 
 ### 📱 Mobile Responsive UI Proof
 Below is the screenshot showing the fully responsive header, layout, and modal alignment on mobile viewports:
-![Mobile Responsive UI] <img width="300" height="400" alt="Screenshot_20260718-011150 (1)" src="https://github.com/user-attachments/assets/0264d30d-8a1a-4813-8613-056a3ea41491" /> <img width="400" height="900" alt="Screenshot_20260718-011142 (1)" src="https://github.com/user-attachments/assets/87e118ac-9418-4914-bb6e-f2f7639d75f2" />
+![Mobile Responsive UI] <img width="200" height="400" alt="Screenshot_20260718-011150 (1)" src="https://github.com/user-attachments/assets/0264d30d-8a1a-4813-8613-056a3ea41491" /> <img width="400" height="900" alt="Screenshot_20260718-011142 (1)" src="https://github.com/user-attachments/assets/87e118ac-9418-4914-bb6e-f2f7639d75f2" />
 
 #### 📸 Analytics & Monitoring Setup <img width="1920" height="1090" alt="{E5F8F299-5630-496E-985A-4B92A6DF2AB0}" src="https://github.com/user-attachments/assets/830d3ed6-f981-46f0-a22d-3d226f9e8776" />
 
