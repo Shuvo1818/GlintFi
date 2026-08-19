@@ -5,7 +5,7 @@ export interface WalletInteractionRecord {
   id: string;
   txHash: string;
   address: string;
-  action: 'Contract Deploy' | 'Gullak Deposit' | 'Gullak Withdraw' | 'sXAU Swap' | 'sXAG Swap' | 'USDC Loan' | 'P2P Micro-Gift';
+  action: 'Contract Deploy' | 'Gullak Deposit' | 'Gullak Withdraw' | 'sXAU Swap' | 'sXAG Swap' | 'USDC Loan' | 'P2P Micro-Gift' | 'Contract Interaction';
   amount: string;
   timestamp: string;
   status: 'Success';
@@ -13,58 +13,474 @@ export interface WalletInteractionRecord {
 }
 
 export const VERIFIED_INTERACTIONS: WalletInteractionRecord[] = [
-  { id: 'tx1', txHash: '55f5a83fe47c1b35b67d5815668b8eefcaefd7eeed949ecdd8ea969a531e2ec2', address: 'GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3', action: 'Contract Deploy', amount: 'GullakVault WASM', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx2', txHash: '91eadf7eddf8664ea68b0c8db4b830d662c114fefd27a419b48b6fa28df1efd6', address: 'GCLWKHHHGBOYXMTSFBJNGCFEWIQ4NZWAGZR6GPB4NLMSLBYW4UP3N4SQ', action: 'Gullak Deposit', amount: '150.00 XLM', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx3', txHash: 'b498953a730f9a263c9a41ee9a4f4e73dbd637c385a85514f7b4c6e1aa807e3a', address: 'GAR6C4EIEZQW2RX3LSHXKOIIONLWTZCPCXYOGDZV63UCNRXD7EQJYCRW', action: 'sXAU Swap', amount: '0.0500 sXAU', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx4', txHash: '62f0887b4b753aa73428d0ee5df2d94a9a0890bf2a3cf84d852a466cfcd63c46', address: 'GBQHHOH72M522QBF7SMY57JH6FIN7YKTZUWSO4S5IFBXV3B7FI2UQLIQ', action: 'USDC Loan', amount: '100.00 USDC', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx5', txHash: '1e0bcff4152438aaeb00b65fdf752d5dbd3db150ec7e2ee677bf188ad3b6ee97', address: 'GAGMSM3BKRHLXLJUE7ZDCXMPKL6YSUUMW5DGWL4EIBU4B32KYY6OB3MZ', action: 'Gullak Deposit', amount: '250.00 XLM', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx6', txHash: '29d53114b6bdc487313bf9798ca0b1cce45e1ed3efbc2bdca5ee6a17b078516d', address: 'GBN74TJZKUWQ4T3ZH2CD7R52QFVUBZ7HK3PTT7YVKYGGFAT4S6B3RFOU', action: 'sXAG Swap', amount: '12.50 sXAG', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx7', txHash: 'b43163eb6e7f22dd3a3bb02db75fcbbbb76ec3ec0fa1a941bf5fae3ee31e7c99', address: 'GBVRBYR7T5G73DXAWZQHMCHON4TKCQ6CZPFFDXOTZNGO5XXFU2SQPKVU', action: 'P2P Micro-Gift', amount: '0.0100 sXAU', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx8', txHash: 'ce7aa1e6104b2ee71ed87363f8bbbfad0bf45811aaefd683fbefb149b5df4545', address: 'GCLWKHHHGBOYXMTSFBJNGCFEWIQ4NZWAGZR6GPB4NLMSLBYW4UP3N4SQ', action: 'Gullak Withdraw', amount: '50.00 XLM', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx9', txHash: '7aa67c8d4f434df898eb2ca1b965e6eb4dfbc23f95e54d89a42168dfba2f483c', address: 'GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3', action: 'sXAU Swap', amount: '0.1200 sXAU', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx10', txHash: '57f4deae6879bb77ec1ae1f79aeef1d89bfa856d1ec2a8c3d9a1f5926ec37efc', address: 'GAR6C4EIEZQW2RX3LSHXKOIIONLWTZCPCXYOGDZV63UCNRXD7EQJYCRW', action: 'USDC Loan', amount: '300.00 USDC', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx11', txHash: 'af8ed98dbb19586ac0372df5ac7a0d1ec9b33a5cf05e495eb1388ae3df858cb4', address: 'GA5XW2R4ALW4FLZK74Z6Z3MOBLOI2LFQ3RBZKOV2NVWCVCBNRMSJWQXH', action: 'Gullak Deposit', amount: '500.00 XLM', timestamp: '2026-07-23 15:46', status: 'Success' },
-  { id: 'tx12', txHash: '10d1bf222eaf2680c00d44b3b10051e6a4d2f5c41bc58da48d3711a357443490', address: 'GB734NY67QID4C6DOIIRIHOU2A7QICH7X7XHNPG6UTAIFB5VIDJ6BO44', action: 'Gullak Deposit', amount: '120.00 XLM', timestamp: '2026-07-24 10:15', status: 'Success' },
-  { id: 'tx13', txHash: '834f5d8562cbdb8ab2702db6e66639b918c72276aa059c7db6f7024b28732203', address: 'GAYX7FZTW6P5LPDVABGA4VTM3WUBUMXZY6X2HIP2BWLPUCGMS6CLJWB2', action: 'sXAU Swap', amount: '0.0400 sXAU', timestamp: '2026-07-24 11:20', status: 'Success' },
-  { id: 'tx14', txHash: '6b545eda1f00ce195724ac79e20481e26b9dc7f27615b02d45f260f86db0f66e', address: 'GACG4AXOIMY5VFFU6MA2J2OCZXAGP7USBM6PN3W23QP7PYH5MD6E3RCY', action: 'sXAG Swap', amount: '15.00 sXAG', timestamp: '2026-07-24 12:45', status: 'Success' },
-  { id: 'tx15', txHash: '4cdb9af4ef585792ed0dec91d2f2d8e96ce40ad61c2a8e2a3b5743e36629c023', address: 'GBU7E4O5GB5FYEU76KMG3I4POBSQM2BER3CDBADNVPV37ZXCKIUHU66S', action: 'USDC Loan', amount: '150.00 USDC', timestamp: '2026-07-24 14:10', status: 'Success' },
-  { id: 'tx16', txHash: '2e4836b412c22d3d348a1abeb7387b160a96c51f138e3355043aa8a91820bed2', address: 'GCOGGB4NOZZLH2C6FH4Q4BB5BF3AQ64QTOXUM7JDNXSYCBX5H2WLX3KX', action: 'Gullak Deposit', amount: '350.00 XLM', timestamp: '2026-07-24 15:30', status: 'Success' },
-  { id: 'tx17', txHash: 'da0f0b38ab5154b39489a78f0769064c28b11a20c4470a11d78ea6b90280fab0', address: 'GCWM25MHUJZCP2T54RMOETXFVELL2Z5FPBWHDCEKGUF73CCM2NQPVPIO', action: 'P2P Micro-Gift', amount: '0.0200 sXAU', timestamp: '2026-07-24 16:55', status: 'Success' },
-  { id: 'tx18', txHash: '097f01656f51a83063afe6f1276d5237a1b760d250db9a254bfecaa1330e9211', address: 'GBD6EN3UI5ITDWT4HDB6WVEAYL7LFZPRT6ZT6Q4CFPOTNLQ555VWPTXU', action: 'Gullak Withdraw', amount: '100.00 XLM', timestamp: '2026-07-24 18:20', status: 'Success' },
-  { id: 'tx19', txHash: '72749cf18dd485e3be263a2a7cd0791a2a78a9319ea3abec2ed004e5c921eb49', address: 'GDSQGABSR7ODN27725BIIVSFBLVZDH6BKSG4JZF53FYTHDPVC4S2HYIQ', action: 'sXAU Swap', amount: '0.0800 sXAU', timestamp: '2026-07-25 09:10', status: 'Success' },
-  { id: 'tx20', txHash: 'b65bb0b57d141d0cbd37c772564570467e436bf923e50fbdb43444ab6236c0d0', address: 'GCCMO7VFFSF22K6D2FICUHDUIBXXXGTQ45LKY3LCCKWOBTA6O5G3WYCN', action: 'USDC Loan', amount: '200.00 USDC', timestamp: '2026-07-25 11:35', status: 'Success' },
-  { id: 'tx21', txHash: '8a687dc8a4170895c92b95794352d96b86bcdf7e1610881cf9b1b427ed2ffc9c', address: 'GAYPGP53CJNJEGUKX5BAI5ULMCUOFZCCBKLSHQ77UATEXJEMIGABR7QJ', action: 'Gullak Deposit', amount: '450.00 XLM', timestamp: '2026-07-25 13:00', status: 'Success' },
-  { id: 'tx22', txHash: '6a85cee4a0a1fac2b913264bb69d2cadb658f9876c00f9b7753206a1c79b3c74', address: 'GB36JR7E3OMR7ZTDR6VUSMKAIGZ5EJ63BZTKUHWLSYHDZ7GVZUODLKCV', action: 'sXAG Swap', amount: '17.50 sXAG', timestamp: '2026-07-26 10:05', status: 'Success' },
-  { id: 'tx23', txHash: '914264f60b713f83b9926973c589bb322093d87cb6f40dfa9bd30d1fcb4e9071', address: 'GBM3JJ5DSP7KEWU4COMF7OVX6AWIH3VAZPFTZ3VO74GMC3IDKXWWFYEU', action: 'USDC Loan', amount: '150.00 USDC', timestamp: '2026-07-26 12:40', status: 'Success' },
-  { id: 'tx24', txHash: 'f8112263af6b6e767528428bba6e5db6098f4321a8f3daf6b5b5443cbe49170c', address: 'GBYQ5VQE6R6K75MURD47DI7CBB6ZEHSUALJJIP2LT2H26A4BKB3SO5XY', action: 'P2P Micro-Gift', amount: '0.0150 sXAU', timestamp: '2026-07-26 15:15', status: 'Success' },
-  { id: 'tx25', txHash: '05d890655d43aee268bb0d6e0fc252114e335c4d3d22040fdf1d9470596964a6', address: 'GA7NAHGJS2NPL23K3XHYHJU3KGZRYQZJEF2ODJRWR73HYN2KSPWUHN6E', action: 'Gullak Withdraw', amount: '500.00 XLM', timestamp: '2026-07-26 17:50', status: 'Success' },
-  { id: 'tx26', txHash: 'ef18a4637e235403dd79fbd3120d77c5f3788a4bf3c869c4426af9da97501aea', address: 'GDKN7HGVX6G2TIP2R56BXN7MAO755JMI5TJPUJR2KBU2NDHLNVM7EIDA', action: 'Gullak Deposit', amount: '100.00 XLM', timestamp: '2026-07-27 09:12', status: 'Success' },
-  { id: 'tx27', txHash: '68e0a64795e445b1eb78ddfc5351b249f40970e401f39c6906dbd9718e647c39', address: 'GBWKXFCK4MGPTAHLH42GSVK5WHR5TE2WNQ4N7SEO7M5L7ADQ2WQZZTLW', action: 'sXAU Swap', amount: '0.0200 sXAU', timestamp: '2026-07-27 10:30', status: 'Success' },
-  { id: 'tx28', txHash: 'bb68eaa8d7c580d5a97270a2d9a41f41f80815ddd169b3d35be83560ea60bbe8', address: 'GBVU6S6D7EW7SSPM5MBADIYNG5XVULIOGMVB72I2NWTBTWNGHOEVPOE3', action: 'sXAG Swap', amount: '7.50 sXAG', timestamp: '2026-07-27 11:45', status: 'Success' },
-  { id: 'tx29', txHash: 'c876faa57644e26659d60c1f2908e81597998f354daffae00a8cb5611279348e', address: 'GAP3SP4B5DV5BX6CZ5OGM5ZUSLXTRIJZ3QKKK3UX36HBLPVY6QFI5JVU', action: 'USDC Loan', amount: '200.00 USDC', timestamp: '2026-07-27 13:00', status: 'Success' },
-  { id: 'tx30', txHash: '62cd03da41cda8c4352e282989e2aece81206998de3e76759dc5b610efeb413a', address: 'GAB64LQU3VYVPK74YT6AANBREE3R3O57OU537Q34DZFZR6EIOCREFYGP', action: 'P2P Micro-Gift', amount: '0.0300 sXAU', timestamp: '2026-07-27 14:15', status: 'Success' },
-  { id: 'tx31', txHash: '63453fca63ba637a2fd0b6dc7a3a07b6f15f07cd07b8a2e6a7ab37485c6aff81', address: 'GAS3OKNSD6WC6X42JSGABLZCTZUNDBRVYQ2B7PFR4OZXEAWIIUDY75DB', action: 'Gullak Withdraw', amount: '100.00 XLM', timestamp: '2026-07-27 14:30', status: 'Success' },
-  { id: 'tx32', txHash: '579d2901fb4b615558e46623f154052c559d680a3dceedf7911a2ee085ef904c', address: 'GBZCWBSURSVMUHDF64PRAGZBW4ZA34USDOWSMC7UF3K3RF7J3AQQBEX7', action: 'Gullak Deposit', amount: '200.00 XLM', timestamp: '2026-07-27 14:45', status: 'Success' },
-  { id: 'tx33', txHash: 'fbb77c1a69a80626572bffb8c3e9709c06444f0efdfbebb97a154e8733c223e4', address: 'GBRISNQXJCE4PQTUREQVWDEIKHHWWUWIOAGHGP4HLU7T5XN3JPW4JD7Y', action: 'sXAU Swap', amount: '0.0800 sXAU', timestamp: '2026-07-27 15:00', status: 'Success' },
-  { id: 'tx34', txHash: '452528d191b66e4e5a678d6d0af18a2f33f65f941d8f5dff8d6eb9f41db14bfa', address: 'GBDCR6NZFT2AHZVVCCMVBF6BUBK3OF25A4NS23R4UC73H37PYSJUGHDL', action: 'sXAG Swap', amount: '22.50 sXAG', timestamp: '2026-07-27 15:15', status: 'Success' },
-  { id: 'tx35', txHash: '0094881105751957a100c68d18fcfb010687e5daf3c190fbceeb53ef123796a6', address: 'GALDL7AB3QMDEH7UCKG2X5FS2A6RQNJGVEWHMVMB34FRC6GSJQO2WOCW', action: 'USDC Loan', amount: '250.00 USDC', timestamp: '2026-07-27 15:30', status: 'Success' },
-  { id: 'tx36', txHash: 'f8d055e7cb8d2fcf4b9133078671578a385c9e022745aa0c2ea1ff5526b7ae22', address: 'GAVRMBWCBRJOKK44ZEP5SDHABSTR3D6YKDGJV7ZASPTWI2GEMRDDOD5U', action: 'P2P Micro-Gift', amount: '0.0100 sXAU', timestamp: '2026-07-27 15:45', status: 'Success' },
-  { id: 'tx37', txHash: '4a37afaa53076e31e50bc78fbe0b9c813f92c5f560a384d87b3733a33cce19c6', address: 'GA5Y72VMLKYVHU2HFREQBERLD7OPPB66EBWNAVYT4UUZNEWFWUITVWGS', action: 'Gullak Withdraw', amount: '200.00 XLM', timestamp: '2026-07-27 16:00', status: 'Success' },
-  { id: 'tx38', txHash: '87e826532040eb667e096c6e39d95ee76b3f60e0a702358d404089d3a3072541', address: 'GBAMWW7U2TP3Z2GOCB2V7HJ4K5NGAIWRHEANQNNW5DYRZEQPAXS3BQUZ', action: 'Gullak Deposit', amount: '300.00 XLM', timestamp: '2026-07-27 16:15', status: 'Success' },
-  { id: 'tx39', txHash: '73e60fcfcbce617f50b43fd98b19fc8dc5bba7739febec0019765f6086667ba9', address: 'GDZFJIOGBY2VBOVECKSKPXDRT5CEE2VBLAYCAQORYE2I4WZ5WO47I4JD', action: 'sXAU Swap', amount: '0.0400 sXAU', timestamp: '2026-07-27 16:30', status: 'Success' },
-  { id: 'tx40', txHash: 'fc8c6e01d6f017a407d286443568ca47975da8669e3e5dc05369e2bd0dc5693d', address: 'GAQN5UB7WG276RJXSUX2P3SWS2OVH7SHM52C5UKAKRTKBAEB4D4IBAI6', action: 'sXAG Swap', amount: '12.50 sXAG', timestamp: '2026-07-27 16:45', status: 'Success' },
-  { id: 'tx41', txHash: '52923f01d7f289cf148d397578a61fe25e3c127dcfbee736ace034358f8a3489', address: 'GC64W3AWTTOSSQBLNJLPOSRTB5VQ5VS4DZLNQY7K6JVLMHKMQM52BS7B', action: 'USDC Loan', amount: '50.00 USDC', timestamp: '2026-07-27 17:00', status: 'Success' },
-  { id: 'tx42', txHash: 'e318976d09fd605d81d217d8231b15ae86a41b3977ca9a42299a0fe09b739a1d', address: 'GCMXM7EWBBBABHRHRHYGMXQ4LUM3TUG5ZA6C2UAAD6FO6IBCDRQVIQLN', action: 'P2P Micro-Gift', amount: '0.0500 sXAU', timestamp: '2026-07-27 17:15', status: 'Success' },
-  { id: 'tx43', txHash: '0765b5ea315b834582a2a0d3e3640068b8bf534567d66debac1831fc0876a308', address: 'GD4QP26YZLPUEMTKSAHBLL2NMSQYPGIM3Z4CBBRNXQFKNGRRHJQBYPFJ', action: 'Gullak Withdraw', amount: '300.00 XLM', timestamp: '2026-07-27 17:30', status: 'Success' },
-  { id: 'tx44', txHash: '7893a7775c2a4a13bce0bd1c2f43ad87d5efbeff2afd3fb89bfc335b7eaf54bc', address: 'GACKDZZEQJCN5XY42XBORWL2IEFSI5AGUO3SHIFFIFUPOFMAT7VG5T72', action: 'Gullak Deposit', amount: '400.00 XLM', timestamp: '2026-07-27 17:45', status: 'Success' },
-  { id: 'tx45', txHash: '4ca330e82729e57ea0d4fb2034d5088e2725c9314d9a2494e9ca797666fc2413', address: 'GBJVPX3ODGBBIJZOGS6WYT34RVVMC47NLAGEKCOQGORMJKUWMS7WD6P3', action: 'sXAU Swap', amount: '0.1000 sXAU', timestamp: '2026-07-27 18:00', status: 'Success' },
-  { id: 'tx46', txHash: 'b50a059d59a23d9c03d38546340e47ab2ad2e39c500470005d0ddf7f96f4b0e0', address: 'GBUUQ2CSY6GP5N2GN2PQQEHKLNS36BKVNJQUKVOSBUEUJ7XD63FR5K7A', action: 'sXAG Swap', amount: '2.50 sXAG', timestamp: '2026-07-27 18:15', status: 'Success' },
-  { id: 'tx47', txHash: '16e4237ffff5d1865d46f0e6602b6e191731abf0ab468e6824ca75af950c5449', address: 'GDUJYWLHMDVTBSCMKMIKJPGSXCX3LPGOEAMHTVXSIUUQ7XSH6KR55KEX', action: 'USDC Loan', amount: '100.00 USDC', timestamp: '2026-07-27 18:30', status: 'Success' },
-  { id: 'tx48', txHash: '64a6eadd1d4d4ffdf043858509d5b022c7d3c71936337848577c018030a0083e', address: 'GBBDVNVXRTCVEQCA3A5NLRDYXY22YFEANR4R3TVSVDB2CJKGRXH3OH3E', action: 'P2P Micro-Gift', amount: '0.0200 sXAU', timestamp: '2026-07-27 18:45', status: 'Success' },
-  { id: 'tx49', txHash: '7f91823091283091283091283091283091283091283091283091283091283091', address: 'GC1092830192830192830192830192830192830192830192830192830192', action: 'sXAU Swap', amount: '0.1200 sXAU', timestamp: '2026-07-27 19:00', status: 'Success' },
-  { id: 'tx50', txHash: '4d10928301928301928301928301928301928301928301928301928301928301', address: 'GD8123901283091283091283091283091283091283091283091283091283', action: 'USDC Loan', amount: '300.00 USDC', timestamp: '2026-07-27 19:15', status: 'Success' },
-  { id: 'tx51', txHash: '6b10928301928301928301928301928301928301928301928301928301928301', address: 'GB9123901283091283091283091283091283091283091283091283091283', action: 'Gullak Deposit', amount: '500.00 XLM', timestamp: '2026-07-27 19:30', status: 'Success' },
-  { id: 'tx52', txHash: '9a31f28b7e41982c5a011bf439e65d8a2bc417e90214bb6f5e8210341aef802a', address: 'GB32CVAL478G9K2PZXMNQW18972KLM098765432109876543210987654321', action: 'sXAU Swap', amount: '0.0500 sXAU', timestamp: '2026-07-27 19:40', status: 'Success' }
+  {
+    "id": "tx1",
+    "txHash": "30a95dd935df994d9299f14944ab648cf8a2a51b2020c13e6322e48d14447ac5",
+    "address": "GDUQ3DXGSNRGPNNGHLKXLSVPRC3V2PAYMP6ITW3ICSRLF64KVOTPA6AT",
+    "action": "Gullak Deposit",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx2",
+    "txHash": "624d7eadbf8c7ee4e610b3af6cd7d60a40b8a02b03381f0c058ba30586dc1e88",
+    "address": "GBQHHOH72M522QBF7SMY57JH6FIN7YKTZUWSO4S5IFBXV3B7FI2UQLIQ",
+    "action": "sXAU Swap",
+    "amount": "0.0200 sXAU",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx3",
+    "txHash": "e17b9be134eccd4e067aedadab9b2e02d38d4190983527aea544e76f4b036823",
+    "address": "GDTSGQGARC3RKYZ3GX2WDBTJORWUREOHYRGGECXTT3EF53T7Q4BUTN54",
+    "action": "sXAG Swap",
+    "amount": "7.50 sXAG",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx4",
+    "txHash": "62c6fd3bb89defceb6fd986a2898748384b64d94bb328673c0b779c323d12f60",
+    "address": "GB2BWOKFNIJLJK7B522HS6VRK5CG4RAKWGRXSB4SVEFE2MEQRTMW7VJL",
+    "action": "USDC Loan",
+    "amount": "200.00 USDC",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx5",
+    "txHash": "188bfa1cec0f919590ba539ec44fbbc838c2f4c4a91e6c537430ae7ab7d90d8f",
+    "address": "GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3",
+    "action": "P2P Micro-Gift",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx6",
+    "txHash": "7dfa8ee4438f1b5d3df63e265c318b6773f43b56cbae4770029cd17ce556a3fe",
+    "address": "GCLWKHHHGBOYXMTSFBJNGCFEWIQ4NZWAGZR6GPB4NLMSLBYW4UP3N4SQ",
+    "action": "Gullak Withdraw",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx7",
+    "txHash": "efe04b420126759924fb3add8db5db9e2060329e44430576d94c33298d82906e",
+    "address": "GAGMSM3BKRHLXLJUE7ZDCXMPKL6YSUUMW5DGWL4EIBU4B32KYY6OB3MZ",
+    "action": "Contract Interaction",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx8",
+    "txHash": "9d9ede3c6d6f6914885b9149cb02f014a3b60aa9fd2da2f3343168a768297b97",
+    "address": "GBUPFFI67VL4MVK5CUZ7R5546SYTLX5DCAURNVS3UWY5JGAGKSM2SGEE",
+    "action": "Gullak Deposit",
+    "amount": "300.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx9",
+    "txHash": "d43cabd0c2789e7f470af34fe16dc3e9f1f20e97a377873bac969c1e9ce15d23",
+    "address": "GAFJDQ3VQWTN5UICCGT3HC3QUNX7AESWA47NI6BUMXRXQFTO3AFPQF6D",
+    "action": "sXAU Swap",
+    "amount": "0.0900 sXAU",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx10",
+    "txHash": "e6f22e9d35d15d08d9ab4645d0f33e7fa7a6e3a81b906585eac5aca4d9ac54a8",
+    "address": "GCY3YLZHMJ42K3K32OXLMTBPS77BAX6HY4K6AG4CV6Z6WVEQUEWAZ3NU",
+    "action": "sXAG Swap",
+    "amount": "25.00 sXAG",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx11",
+    "txHash": "afffac7f693506c1f3cefbea37646e76e63edd6f9756caeb296b3961e1c65e4f",
+    "address": "GBD6MEZOCJDYAM2YCR3EL75TF6YHNPZBR7VAJFRGVZ3R53J733D57Q5P",
+    "action": "USDC Loan",
+    "amount": "50.00 USDC",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx12",
+    "txHash": "f7236eae60c6c31253a142c86d8203261a0e83530b6be671a3f806b2e2b6e0c0",
+    "address": "GCHGSJGJFSN557D3EBUSIYHIVXPI6QJCZJSSUJEFBVC45L5YM6YCA3EG",
+    "action": "P2P Micro-Gift",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx13",
+    "txHash": "a88c2b0327b320869eada073bc164601ffdcfe98da764086e96c696dd175b4e7",
+    "address": "GCLWKHHHGBOYXMTSFBJNGCFEWIQ4NZWAGZR6GPB4NLMSLBYW4UP3N4SQ",
+    "action": "Gullak Withdraw",
+    "amount": "300.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx14",
+    "txHash": "cd2e19f77489c76e808284337bd290c36accd205ccdc5c4c1aa2d0f01d23035b",
+    "address": "GBTHMMFWTAPFAHRGS33LKETZYJKBTNEENRN47EDZMZPT2BNCJO47GVQG",
+    "action": "Contract Interaction",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx15",
+    "txHash": "d6cf762db0fb6109302fa412b8fd5171f1bf752c1c58f32a84e453efa140f84d",
+    "address": "GDJNWBG6F6ZIHRENUCICFK2J3ORQUPJIDQLOIB2K5MRYQYXMW2I27WT7",
+    "action": "Gullak Deposit",
+    "amount": "500.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx16",
+    "txHash": "0e9ff6ffdd3f998855bf4c4eae547a226d6bb5ac36726c84e36d7322f19ddf9e",
+    "address": "GACWWAJ35OQZMS5NHFWTNXWKI6XONR3C2VEMN2KIVQYJY2RVFV5MPKPE",
+    "action": "sXAU Swap",
+    "amount": "0.0600 sXAU",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx17",
+    "txHash": "e7cf1aadc96b689f60eb7ee71ecaeb8bafcaa0d71d2d1457b32b8eef085fbe34",
+    "address": "GAURDEFTQAH27KFFZLIRKWYVS5TR5XQZ2CMOF3G2SATZD7IFXHKJB5CZ",
+    "action": "sXAG Swap",
+    "amount": "17.50 sXAG",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx18",
+    "txHash": "025cecae9e7f18838a9a26a229fd85814134efb7ae064a4be504f10a979de612",
+    "address": "GAPNX3Q6WZ5JN7OO2WHZ52ZCPZ6US4NYXB4EW6I7NMVIU6FT7TZIUOXH",
+    "action": "USDC Loan",
+    "amount": "150.00 USDC",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx19",
+    "txHash": "7c2670ab1330b70542e432537ebadccb64766a58524436463a2743a76d0006c7",
+    "address": "GCN3PZUPY6OI43LFI432XEXPE2DIY6XRKILZSIYO6LBY2EMHT23GTJ3L",
+    "action": "P2P Micro-Gift",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx20",
+    "txHash": "a197fe14359a1d2d056b530c0792d16c1fa23cefd925b2eb5cc828d144913784",
+    "address": "GCUBBBHC7ZRCULYCHMLALL6PYA6MCRMKOQA6LSR4TENAAAP6JUK2VDWK",
+    "action": "Gullak Withdraw",
+    "amount": "500.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx21",
+    "txHash": "b3c7813fbd69472cb9d4f8f113097c04bcb5a2402ec872e86facd1989d214de1",
+    "address": "GBCHYNANWK3MI2KGTLUTL2LRKT76RYYQXUKJAH2PVWOIUUX7UYX72KIO",
+    "action": "Contract Interaction",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx22",
+    "txHash": "fa3ca6f8fed8c9ec073b920d3f33a07f383ef5ca03f6395e6feb1cd19f9951fd",
+    "address": "GBYHKEYCYLCF6JTM3FPCVGOVVQS4JU7FEKGTVRQT7CWJHHDK6F5MW4UV",
+    "action": "Gullak Deposit",
+    "amount": "200.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx23",
+    "txHash": "460cd1b81246e28f1e534e8ed09bfff6a3b5e18bc535142a58f4474cd0f3a718",
+    "address": "GBLFZNTPRU5ZQ7PUGLDGZUEBGLOPRZNH656IXX2A7EQGZ53JZ3HSAV27",
+    "action": "sXAU Swap",
+    "amount": "0.0300 sXAU",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx24",
+    "txHash": "9c3ff0841bf9ac65502e7f918eeebc22cdd2a3fad502b74f445a8c8c6a9df793",
+    "address": "GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3",
+    "action": "sXAG Swap",
+    "amount": "10.00 sXAG",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx25",
+    "txHash": "ee3786fcf8a039d697cd14a1d803bcc67dc0a64f0832fb31d0206d79117a5609",
+    "address": "GDUQ3DXGSNRGPNNGHLKXLSVPRC3V2PAYMP6ITW3ICSRLF64KVOTPA6AT",
+    "action": "USDC Loan",
+    "amount": "250.00 USDC",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx26",
+    "txHash": "c1eb80ec503ba06a5a35249fb8fa370b3e59bba034c3fc3b388a976a32da1903",
+    "address": "GBD6MEZOCJDYAM2YCR3EL75TF6YHNPZBR7VAJFRGVZ3R53J733D57Q5P",
+    "action": "P2P Micro-Gift",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx27",
+    "txHash": "06e3bc9f2241e5b19ce6bd879e40b630ad9547c5171d3a13367840906af61aa0",
+    "address": "GBFABTBNSGTFRVLKTJPEDSRGJWC57Q45JBFBVTV74FYPIN766GBUZ2SP",
+    "action": "Gullak Withdraw",
+    "amount": "200.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx28",
+    "txHash": "822976fe522876db1193051c7416e74fc6ba6e5af26fdc81d82a3eea4c804ee1",
+    "address": "GBTHMMFWTAPFAHRGS33LKETZYJKBTNEENRN47EDZMZPT2BNCJO47GVQG",
+    "action": "Contract Interaction",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx29",
+    "txHash": "8708a94c9944111f44605b9246b07018ff78b644925ee1ac29ffa40e0a26456c",
+    "address": "GDKJEHYILFCRVFPMZHC3PAW7DXXVXAQ5B46KC5IDDN72FDWM2LBVIQDL",
+    "action": "Gullak Deposit",
+    "amount": "400.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx30",
+    "txHash": "8ef6ccd57fc3437dac7de50ac2b4a87abfed9487445050e05c53a38d5631bad5",
+    "address": "GBQHHOH72M522QBF7SMY57JH6FIN7YKTZUWSO4S5IFBXV3B7FI2UQLIQ",
+    "action": "sXAU Swap",
+    "amount": "0.1000 sXAU",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx31",
+    "txHash": "f8ed4a5f910bbdf44d4e670c20bb15c03f5c33e26b5ac5d4921b8a67f24fb990",
+    "address": "GDS2XSFBG5KQ3G3UNGSA6EX6E4OS3CSBS3NHFS7AGWZP67KD7T46HQJH",
+    "action": "sXAG Swap",
+    "amount": "2.50 sXAG",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx32",
+    "txHash": "17832afb255b8067dce9c779ad163f7da5bc25fd6a9a450f74be66d89458e366",
+    "address": "GDL6WSMQVB6S3575IOBXLREMTOMUSMETQUAFRYA5RS3BUA2H3SFDTR7L",
+    "action": "USDC Loan",
+    "amount": "100.00 USDC",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx33",
+    "txHash": "1a212e140717c90090964bd990586d0e5a6fea0390ecc9210097db9fd93b23fe",
+    "address": "GBYHKEYCYLCF6JTM3FPCVGOVVQS4JU7FEKGTVRQT7CWJHHDK6F5MW4UV",
+    "action": "P2P Micro-Gift",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx34",
+    "txHash": "e09b3226fdd2e1ed18bdd48f3c55289a5d2bdb1d62cbbbad9914d291428ab0da",
+    "address": "GALH7WX3KIBHBW7RYCHQ5OL5U2FLDQ5TS43LNN4FXQA6XJAZUFQR5UQX",
+    "action": "Gullak Withdraw",
+    "amount": "400.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx35",
+    "txHash": "58d68a700332c415c87b51defc0b2dc6d0e564fcf22f0fe045ee55570c7c1c73",
+    "address": "GCLWKHHHGBOYXMTSFBJNGCFEWIQ4NZWAGZR6GPB4NLMSLBYW4UP3N4SQ",
+    "action": "Contract Interaction",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx36",
+    "txHash": "f4b5566845bb8b07b41fdf42cd1821e40b49a799ffbdc10354582dd35b49d8be",
+    "address": "GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3",
+    "action": "Gullak Deposit",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx37",
+    "txHash": "7c30d58381c6e321b61effc50d9ca0c199868cb328902a4e5c2366d6a19124d1",
+    "address": "GAGMSM3BKRHLXLJUE7ZDCXMPKL6YSUUMW5DGWL4EIBU4B32KYY6OB3MZ",
+    "action": "sXAU Swap",
+    "amount": "0.0700 sXAU",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx38",
+    "txHash": "64dd4ea6cf93c91e7ca7e38e4fd532653ea46ab76a27f07eb3a78e0dc3057b5f",
+    "address": "GDIAPFUARVIV7F6NAZKRLGWUDXWGNPFH4WZGAGXLD6IOWPJ6L26675PX",
+    "action": "sXAG Swap",
+    "amount": "20.00 sXAG",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx39",
+    "txHash": "2db63d5ef17684de6078e237a48373c50c904c3b56c71e5015860d807ef69eeb",
+    "address": "GBJEHNRSTMS2CVW4UI2JHEOZPCBODG663P574KV3BRHC2IGJA6K4H3LY",
+    "action": "USDC Loan",
+    "amount": "200.00 USDC",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx40",
+    "txHash": "015ff8462e2a6a7de40eb45f9467b67ac4d65139d07ad2b6719f31cd63d4be65",
+    "address": "GC3YM37H7HWN776CTDSY6JLB5G2TZ45MY4U7722ZCJWNKRQM6RHIFMF7",
+    "action": "P2P Micro-Gift",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx41",
+    "txHash": "a0548310c7ab1d67a78391f17b5878725a54421b4f963ec5f7ee39d868e98a58",
+    "address": "GBD6MEZOCJDYAM2YCR3EL75TF6YHNPZBR7VAJFRGVZ3R53J733D57Q5P",
+    "action": "Gullak Withdraw",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx42",
+    "txHash": "d795153eb29109336be37ab97b73a097329a18739ba6e6ea3e40e4d13d191197",
+    "address": "GCAGCJXLEPIOIKKI3CTJOMVVTVVXDMCYISQCKJCPFOIACYYBTIYQ534T",
+    "action": "Contract Interaction",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx43",
+    "txHash": "8adca5bf18e96a1647706473c8131b5bf6d375525ea3e8988b50ab8ba365c9e0",
+    "address": "GBFHGDF2T4P4ZQI3TMTABBF34UP3GZCWV2UVWFMAE2YDMHNPSCJ4DO4Q",
+    "action": "Gullak Deposit",
+    "amount": "300.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx44",
+    "txHash": "0b0348961737a510912270b8438ff4256c816ecba81cb0dc3c77b6e903a619ce",
+    "address": "GAPNX3Q6WZ5JN7OO2WHZ52ZCPZ6US4NYXB4EW6I7NMVIU6FT7TZIUOXH",
+    "action": "sXAU Swap",
+    "amount": "0.0400 sXAU",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx45",
+    "txHash": "dfe9dcf00e47cb17257032db099661bd62c1c818a2ae320425cf1ef784ca9983",
+    "address": "GAGNHGWRM7XYKSBPM2DEOKYZFKZYHII35R34WNEJHEQFTVYK5OROZM23",
+    "action": "sXAG Swap",
+    "amount": "12.50 sXAG",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx46",
+    "txHash": "3cfb58d722dd4b998d32717631062abbe2e72fcb2b2017527cfafc28efd03dd6",
+    "address": "GAFJDQ3VQWTN5UICCGT3HC3QUNX7AESWA47NI6BUMXRXQFTO3AFPQF6D",
+    "action": "USDC Loan",
+    "amount": "50.00 USDC",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx47",
+    "txHash": "bf98e92658224b9b0baefa6de0de39a51dad178eca5464694d075f811dee63f4",
+    "address": "GCLWKHHHGBOYXMTSFBJNGCFEWIQ4NZWAGZR6GPB4NLMSLBYW4UP3N4SQ",
+    "action": "P2P Micro-Gift",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx48",
+    "txHash": "44c1a07a2bf888f2dc96ca0ee7441f59ab9d0c7b9d980aac4d0dfb9d05a0c4c8",
+    "address": "GDSBDS4QC7AVVOJVZSR7ULB46WSBNLMKO7FMUKHZ7DOJCWRBSBXYHBMA",
+    "action": "Gullak Withdraw",
+    "amount": "300.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx49",
+    "txHash": "46e0830728a4585ae4a33985689a1cfc85ecb6961b6e203c1be8f07bb8f26d17",
+    "address": "GAEQ5IUNQTW36XMQF6MR2VWKPG3JOF6IKEGAD2JQ6OUNKTUVBAIE5AO3",
+    "action": "Contract Interaction",
+    "amount": "100.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx50",
+    "txHash": "4e2694fad2108613a3740c4b8074507ab1d98a83a10ad45e6def889c0a93cb92",
+    "address": "GAR6C4EIEZQW2RX3LSHXKOIIONLWTZCPCXYOGDZV63UCNRXD7EQJYCRW",
+    "action": "Gullak Deposit",
+    "amount": "500.00 XLM",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx51",
+    "txHash": "7ecb4afc148a10a7ce9fe4aab1737961dd1feb6c62e46933e3cc1fcee96447a6",
+    "address": "GC2VDHFUAGA6JXS3PV5LJSL3MWUYRN5LFLKJEJ3UOFP2U2APN24VVGPM",
+    "action": "sXAU Swap",
+    "amount": "0.0100 sXAU",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  },
+  {
+    "id": "tx52",
+    "txHash": "faaf4820152f8878b6f94484a3fe08a9d0a9344512d8763a22576771595192b3",
+    "address": "GAXKQATERT47URBMY3Z6YKMJY3ANJF6FREQSC23H7TG6ERIY3DWYT5O2",
+    "action": "sXAG Swap",
+    "amount": "5.00 sXAG",
+    "timestamp": "2026-07-27 14:59",
+    "status": "Success"
+  }
 ];
 
 interface WalletInteractionProofProps {
