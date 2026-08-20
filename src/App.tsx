@@ -31,7 +31,6 @@ import {
   Trash2,
   Activity,
   HelpCircle,
-  Globe,
   Key,
   ShieldCheck
 } from 'lucide-react';
@@ -3454,18 +3453,9 @@ function App() {
             {/* Production Header Action Buttons */}
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button
-                onClick={() => setMainnetProofOpen(true)}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm animate-pulse"
-                title="Stellar Mainnet User Interaction Proof"
-              >
-                <Globe className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Mainnet Proof</span>
-              </button>
-
-              <button
                 onClick={() => setMultiSigOpen(true)}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm"
-                title="Multi-Signature Vault Guard (Level 6)"
+                title="Multi-Signature Vault Guard Security"
               >
                 <Key className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">Multi-Sig</span>
@@ -3473,22 +3463,25 @@ function App() {
 
               <button
                 onClick={() => {
-                  setIsGaslessSponsored(!isGaslessSponsored);
+                  const nextState = !isGaslessSponsored;
+                  setIsGaslessSponsored(nextState);
                   addToast(
-                    isGaslessSponsored ? 'Gasless Disabled' : 'Gasless Fee Sponsorship Enabled',
-                    isGaslessSponsored ? 'Standard gas fees apply.' : 'Protocol is now sponsoring transaction gas fees via Fee Bump.',
-                    'info'
+                    nextState ? 'Gasless Sponsorship Active ⚡' : 'Gasless Sponsorship Disabled',
+                    nextState ? 'GlintFi protocol is now sponsoring transaction gas fees.' : 'Standard XLM network gas fees apply.',
+                    nextState ? 'success' : 'info'
                   );
                 }}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[10px] sm:text-xs font-semibold transition-all duration-300 cursor-pointer shadow-sm ${
                   isGaslessSponsored
-                    ? 'bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/20 text-purple-400'
-                    : 'bg-slate-800 border-slate-700 text-slate-400'
+                    ? 'bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-500/40 text-emerald-300 shadow-emerald-950/40'
+                    : 'bg-slate-900 hover:bg-slate-850 border-slate-800 text-slate-500 hover:text-slate-400'
                 }`}
-                title="Toggle Gasless Fee Bump Sponsorship"
+                title="Toggle Protocol Gasless Fee Sponsorship (Stellar Fee Bump)"
               >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">{isGaslessSponsored ? 'Gasless ON' : 'Gasless OFF'}</span>
+                <ShieldCheck className={`w-3.5 h-3.5 transition-colors ${isGaslessSponsored ? 'text-emerald-400' : 'text-slate-500'}`} />
+                <span className="hidden xs:inline">
+                  {isGaslessSponsored ? 'Gasless ON' : 'Gasless OFF'}
+                </span>
               </button>
 
               <button
