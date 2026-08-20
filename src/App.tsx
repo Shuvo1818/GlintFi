@@ -327,6 +327,7 @@ function App() {
   const [proofModalOpen, setProofModalOpen] = useState<boolean>(false);
   const [onboardingOpen, setOnboardingOpen] = useState<boolean>(false);
   const [multiSigOpen, setMultiSigOpen] = useState<boolean>(false);
+  const [isMultiSigActive, setIsMultiSigActive] = useState<boolean>(true);
   const [mainnetProofOpen, setMainnetProofOpen] = useState<boolean>(false);
   const [isGaslessSponsored, setIsGaslessSponsored] = useState<boolean>(true);
 
@@ -3454,11 +3455,17 @@ function App() {
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button
                 onClick={() => setMultiSigOpen(true)}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-[10px] sm:text-xs font-semibold transition cursor-pointer shadow-sm"
-                title="Multi-Signature Vault Guard Security"
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[10px] sm:text-xs font-semibold transition-all duration-300 cursor-pointer shadow-sm ${
+                  isMultiSigActive
+                    ? 'bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/40 text-amber-300 shadow-amber-950/40'
+                    : 'bg-slate-900 hover:bg-slate-850 border-slate-800 text-slate-500 hover:text-slate-400'
+                }`}
+                title="Configure Protocol Multi-Signature Threshold Protection"
               >
-                <Key className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Multi-Sig</span>
+                <Key className={`w-3.5 h-3.5 transition-colors ${isMultiSigActive ? 'text-amber-400' : 'text-slate-500'}`} />
+                <span className="hidden xs:inline">
+                  {isMultiSigActive ? 'Multi-Sig ON' : 'Multi-Sig OFF'}
+                </span>
               </button>
 
               <button
@@ -4377,6 +4384,8 @@ function App() {
       <MultiSigModal
         isOpen={multiSigOpen}
         onClose={() => setMultiSigOpen(false)}
+        isMultiSigActive={isMultiSigActive}
+        setIsMultiSigActive={setIsMultiSigActive}
         addToast={addToast}
       />
 
