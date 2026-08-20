@@ -212,9 +212,16 @@ export const MultiSigModal: React.FC<MultiSigModalProps> = ({
           </button>
 
           {executedTxHash && (
-            <div className="p-3 bg-emerald-950/30 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center justify-between font-mono animate-fadeIn">
-              <span>Verified Tx Hash: {executedTxHash.slice(0, 24)}...</span>
-              <span className="px-2 py-0.5 bg-emerald-500/20 rounded text-[10px] text-emerald-400 font-bold">200 OK</span>
+            <div className="p-3.5 bg-emerald-950/40 border border-emerald-500/40 rounded-2xl text-xs text-emerald-300 flex items-center justify-between font-mono animate-fadeIn shadow-lg shadow-emerald-950/30">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Tx Hash: {executedTxHash.slice(0, 22)}...</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-[10px] text-emerald-400 font-bold">
+                  200 OK
+                </span>
+              </div>
             </div>
           )}
         </div>
