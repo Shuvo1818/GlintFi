@@ -10,7 +10,7 @@ GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)** tok
 
 ## 🌐 Project Deliverables & Submission Links
 * 🔗 **Live Web Application**: [https://glint-fi.vercel.app/](https://glint-fi.vercel.app/)
-* 🐤 **Twitter/X Launch Showcase Post**: [View Product Launch Post on X](https://x.com/search?q=GlintFi+Stellar)
+* 🐤 **Twitter/X Launch Showcase Post**: [View Product Launch Post on X](https://x.com/Shuvankar112/status/2082378112072077796)
 * 📺 **YouTube Walkthrough Demo Video**: [Watch Youtube Demo Video](https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH)
 * 📝 **User Onboarding Feedback Form**: [Give Product Feedback](https://docs.google.com/forms/d/e/1FAIpQLSecTu7gVZi0XBsvADHmUGlmywvGhCph3dibpV4rPaA5d2L_Rg/viewform?usp=publish-editor)
 * 📊 **User Feedback Record Sheet**: [View Feedback Excel Document](https://docs.google.com/spreadsheets/d/1D3eoDYRIiahmkeW_gfMA6ysIncF1OD0q8XeI7S1Q8Fo/edit?usp=sharing)
@@ -307,8 +307,9 @@ The app captures and displays user-friendly error banners for three specific fai
 4. **Smart Contract Security Review & Formal Audit Report**:
    * Conducted full security review and static analysis for Soroban WASM contract. Full report available in [`SECURITY_AUDIT.md`](./SECURITY_AUDIT.md).
 
-5. **Ecosystem Contribution & Technical Tutorial**:
-   * Published developer tutorial: *"Building Micro-Savings & Synthetic Metal Vaults on Stellar Soroban"*. Available in [`TUTORIAL.md`](./TUTORIAL.md).
+5. **Ecosystem Contribution & Product Marketing**:
+   * **Twitter/X Launch Post**: [View Product Launch Post on X](https://x.com/Shuvankar112/status/2082378112072077796)
+   * **Developer Technical Tutorial**: Published *"Building Micro-Savings & Synthetic Metal Vaults on Stellar Soroban"* in [`TUTORIAL.md`](./TUTORIAL.md).
 
 6. **Requirements for User Onboarding & Next Phase Project Evolution Plan**:
    * **User Feedback Google Form**: Form integrated into app header and User Feedback Modal.
