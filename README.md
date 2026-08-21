@@ -17,6 +17,7 @@ GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)**.
 | 🚀 **Live Web Application** | [https://glint-fi.vercel.app](https://glint-fi.vercel.app/) | Production-ready dApp deployed on Vercel |
 | 📜 **Proof of Deployment** | [DEPLOYMENT.md](./DEPLOYMENT.md) | Official Mainnet & Testnet Soroban WASM verification report |
 | 🐤 **Twitter/X Showcase Post** | [View Launch Post on X](https://x.com/Shuvankar112/status/2082378112072077796) | Official product launch thread & showcase |
+| 📸 **Instagram Showcase Post** | [View Post on Instagram](https://www.instagram.com/p/DbYnP4UyfYu/?igsh=MXFxNzljNTdsamZhbQ==) | Product launch banner & feature showcase |
 | 📺 **YouTube Walkthrough Demo** | [Watch Demo Video](https://youtu.be/F5sQDoDDOlE?si=GK32-T_eYs-HG1BH) | Full video walkthrough of protocol features |
 | 📝 **User Onboarding Feedback** | [Give Product Feedback](https://docs.google.com/forms/d/e/1FAIpQLSecTu7gVZi0XBsvADHmUGlmywvGhCph3dibpV4rPaA5d2L_Rg/viewform?usp=publish-editor) | Official Google Form feedback collector |
 | 📊 **Feedback Excel Document** | [View Feedback Excel Sheet](https://docs.google.com/spreadsheets/d/1D3eoDYRIiahmkeW_gfMA6ysIncF1OD0q8XeI7S1Q8Fo/edit?usp=sharing) | Exported onboarding feedback record sheet |
