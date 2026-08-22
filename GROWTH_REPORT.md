@@ -42,7 +42,19 @@
 
 ---
 
-## 4. On-Chain Traction Summary
+## 4. User Feedback Driven Product Iterations
+
+| User Feedback & Feature Request | Product Feature Implemented | Code Component & Commit Link |
+| :--- | :--- | :--- |
+| *"Auto-slippage & price impact estimator for metal swaps"* | Added real-time auto-slippage estimator & price impact guard in Swap Modal | `src/App.tsx` ([Commit `7c5def1`](https://github.com/Shuvo1818/GlintFi/commit/7c5def1)) |
+| *"Multi-signature approval controls for high-value vault withdrawals"* | Implemented Multi-Signature Threshold Approval Modal & Guard | `MultiSigModal.tsx` ([Commit `e902641`](https://github.com/Shuvo1818/GlintFi/commit/e902641)) |
+| *"Interactive step-by-step onboarding walkthrough guide"* | Built OnboardingGuide modal walkthrough component | `OnboardingGuide.tsx` ([Commit `dc4efab`](https://github.com/Shuvo1818/GlintFi/commit/dc4efab)) |
+| *"Historical sXAU vs XLM yield comparison analytics dashboard"* | Added AnalyticsModal with historical yield charts | `AnalyticsModal.tsx` ([Commit `4dfb507`](https://github.com/Shuvo1818/GlintFi/commit/4dfb507)) |
+| *"Albedo wallet connection support alongside Freighter"* | Integrated dual Albedo & Freighter wallet connectors | `src/wallet.ts` ([Commit `6d6ca3c`](https://github.com/Shuvo1818/GlintFi/commit/6d6ca3c)) |
+
+---
+
+## 5. On-Chain Traction Summary
 
 All 50 Mainnet transactions and 52 Testnet transactions represent real user interactions on the Stellar blockchain, invoking Soroban Gullak micro-savings deposits, synthetic asset swaps (sXAU/sXAG), collateralized loans, and P2P transfers.
 
