@@ -1,4 +1,8 @@
-# GlintFi - Decentralized Precious Metals Hub
+<div align="center">
+  <img src="./glintfi_logo.jpg" alt="GlintFi Logo" width="180" style="border-radius: 16px;" />
+  <h1>GlintFi - Decentralized Precious Metals Hub</h1>
+  <p><b>Official Brand Asset & Tokenized Synthetic Metals Ecosystem</b></p>
+</div>
 
 ## 📝 Project Description
 GlintFi is a premium, highly responsive Web3 platform built for the **Stellar Journey to Mastery 2.0 Hackathon**. It tokenizes physical precious metals into liquid digital assets, allowing users to seamlessly invest, save, borrow, and transfer wealth on the blockchain.
