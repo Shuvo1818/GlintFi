@@ -404,6 +404,12 @@ The app captures and displays user-friendly error banners for three specific fai
    * **Protocol Analytics & Yield Comparisons**: Added real-time sXAU vs XLM yield comparison charts (`AnalyticsModal.tsx`, [Commit `4dfb507`](https://github.com/Shuvo1818/GlintFi/commit/4dfb507)).
    * **Multi-Wallet Support**: Integrated dual Freighter & Albedo wallet connection providers in `src/wallet.ts` ([Commit `6d6ca3c`](https://github.com/Shuvo1818/GlintFi/commit/6d6ca3c)).
 
+6. **Level 7 Advanced Protocol Modules & Ongoing Development**:
+   * **Auto-Compounding Yield Vault Strategy** ([`AutoCompoundVault.tsx`](./src/components/AutoCompoundVault.tsx)): Automated daily yield compounding across precious metal pools.
+   * **Oracle Price Feed Circuit Breaker Guard** ([`OracleHealthMonitor.tsx`](./src/components/OracleHealthMonitor.tsx)): Real-time Reflector/Band oracle heartbeat and flash crash protection.
+   * **On-Chain DAO Parameter Governance Portal** ([`GovernancePortal.tsx`](./src/components/GovernancePortal.tsx)): Decentralized proposal voting engine for protocol risk parameters.
+   * **Soroban Flash Loan Liquidity Engine** ([`FlashLoanAggregator.tsx`](./src/components/FlashLoanAggregator.tsx)): Uncollateralized single-ledger atomic liquidity provider.
+
 ---
 
 ## 📄 License
