@@ -32,7 +32,9 @@ import {
   Activity,
   HelpCircle,
   Key,
-  ShieldCheck
+  ShieldCheck,
+  Zap,
+  Users
 } from 'lucide-react';
 import { signWithFreighter, signWithAlbedo } from './wallet';
 import { ConnectWallet } from './ConnectWallet';
@@ -42,6 +44,10 @@ import { WalletInteractionProof } from './components/WalletInteractionProof';
 import { OnboardingGuide } from './components/OnboardingGuide';
 import { MultiSigModal } from './components/MultiSigModal';
 import { MainnetInteractionProof } from './components/MainnetInteractionProof';
+import { AutoCompoundVault } from './components/AutoCompoundVault';
+import { OracleHealthMonitor } from './components/OracleHealthMonitor';
+import { GovernancePortal } from './components/GovernancePortal';
+import { FlashLoanAggregator } from './components/FlashLoanAggregator';
 import { auth, db } from './firebase';
 import { 
   createUserWithEmailAndPassword, 
@@ -238,7 +244,7 @@ function App() {
   const [networkMode, setNetworkMode] = useState<'public' | 'testnet'>('testnet');
   const [isFetchingBalances, setIsFetchingBalances] = useState<boolean>(false);
 
-  const [activeTab, setActiveTab] = useState<'swap' | 'gullak' | 'loan' | 'send'>('swap');
+  const [activeTab, setActiveTab] = useState<'swap' | 'gullak' | 'loan' | 'send' | 'autocompound' | 'oracle' | 'governance' | 'flashloan'>('swap');
   const [chartAsset, setChartAsset] = useState<'sXAU' | 'sXAG'>('sXAU');
   const [chartTimeframe, setChartTimeframe] = useState<'1D' | '7D' | '1M'>('1D');
   const [hoveredCandle, setHoveredCandle] = useState<Candle | null>(null);
@@ -4303,12 +4309,63 @@ function App() {
                     </button>
                   </div>
 
+                  {/* LEVEL 7 PROTOCOL EXTENSION MODULE TABS */}
+                  <div className="grid grid-cols-4 gap-1 p-1 bg-slate-950/80 rounded-2xl border border-amber-500/20 mb-4">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('autocompound')}
+                      className={`py-2 flex flex-col items-center justify-center gap-0.5 rounded-xl text-[9px] font-bold tracking-wider transition cursor-pointer ${
+                        activeTab === 'autocompound' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>AUTO-VAULT</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('oracle')}
+                      className={`py-2 flex flex-col items-center justify-center gap-0.5 rounded-xl text-[9px] font-bold tracking-wider transition cursor-pointer ${
+                        activeTab === 'oracle' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>ORACLE GUARD</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('governance')}
+                      className={`py-2 flex flex-col items-center justify-center gap-0.5 rounded-xl text-[9px] font-bold tracking-wider transition cursor-pointer ${
+                        activeTab === 'governance' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40' : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      <span>DAO VOTING</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('flashloan')}
+                      className={`py-2 flex flex-col items-center justify-center gap-0.5 rounded-xl text-[9px] font-bold tracking-wider transition cursor-pointer ${
+                        activeTab === 'flashloan' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40' : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>FLASH LOAN</span>
+                    </button>
+                  </div>
+
                   {/* TAB CONTENT */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     {activeTab === 'swap' && renderSwapForm()}
                     {activeTab === 'gullak' && renderGullakForm()}
                     {activeTab === 'loan' && renderLoanForm()}
                     {activeTab === 'send' && renderSendForm()}
+                    {activeTab === 'autocompound' && <AutoCompoundVault userAddress={stellarAddress} xlmBalance={balances.XLM} addToast={addToast} />}
+                    {activeTab === 'oracle' && <OracleHealthMonitor />}
+                    {activeTab === 'governance' && <GovernancePortal addToast={addToast} />}
+                    {activeTab === 'flashloan' && <FlashLoanAggregator addToast={addToast} />}
                   </div>
                 </div>
               </section>
