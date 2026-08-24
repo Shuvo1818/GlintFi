@@ -152,7 +152,7 @@ The app captures and displays user-friendly error banners for three specific fai
 ### 🟠 Level 3: Orange Belt Deliverables
 
 1. **Smart Contract Deployment Address**:
-   * **Contract ID (Custom GullakVault Contract):** `CDZZUSGT7A6NOXUBBFY5MJJOMBIVN6ZPTOHYYMMZ3RGVG24KURQ6TA6K`
+   * **Contract ID (Custom GullakVault Contract):** `CDZZP7WPZGXNXF3PBKQG57FVHKCBISHLTCGBFGVUBVD74UTYFEBP3CRQ`
    * *Description:* Fully custom yield savings vault contract running on the Stellar Testnet. (This Contract ID is generated dynamically by the automated CI/CD pipeline).
 
 2. **Transaction Hash of Contract Deployment / Interaction**:
@@ -277,7 +277,7 @@ The app captures and displays user-friendly error banners for three specific fai
 ### 🔴 Level 6: Black Belt Deliverables
 
 1. **Mainnet Deployment & Public Production App**:
-   * **Stellar Mainnet Contract ID**: `CDZZUSGT7A6NOXUBBFY5MJJOMBIVN6ZPTOHYYMMZ3RGVG24KURQ6TA6K`
+   * **Stellar Mainnet Contract ID**: `CDZZP7WPZGXNXF3PBKQG57FVHKCBISHLTCGBFGVUBVD74UTYFEBP3CRQ`
    * **Live Mainnet Web Application**: [https://glint-fi.vercel.app](https://glint-fi.vercel.app)
    * **Stellar Public Network Horizon Node**: `https://horizon.stellar.org`
 

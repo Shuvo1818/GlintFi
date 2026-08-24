@@ -8,7 +8,7 @@
 
 * **Project Name**: GlintFi Protocol (`GullakVault`)
 * **Contract Language**: Rust (Soroban WASM Environment)
-* **Contract ID (Testnet & Mainnet)**: `CDZZUSGT7A6NOXUBBFY5MJJOMBIVN6ZPTOHYYMMZ3RGVG24KURQ6TA6K`
+* **Contract ID (Testnet & Mainnet)**: `CDZZP7WPZGXNXF3PBKQG57FVHKCBISHLTCGBFGVUBVD74UTYFEBP3CRQ`
 * **Target Network**: Stellar Testnet & Public Mainnet Network
 * **Audit Scope**: `contracts/vault/src/lib.rs` & `contracts/vault/src/test.rs`
 * **Overall Assessment**: **PASSED (SECURE)** — Zero Critical or High Severity Vulnerabilities Detected.
