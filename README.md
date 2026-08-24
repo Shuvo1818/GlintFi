@@ -19,7 +19,7 @@ GlintFi introduces **sXAU (Synthetic Gold)** and **sXAG (Synthetic Silver)**.
 | Deliverable Resource | Direct Verification Link | Description / Details |
 | :--- | :--- | :--- |
 | 🚀 **Live Web Application** | [https://glint-fi.vercel.app](https://glint-fi.vercel.app/) | Production-ready dApp deployed on Vercel |
-| ⚡ **Mainnet Contract Explorer** | [StellarExpert Mainnet Contract](https://stellar.expert/explorer/public/contract/CCW633MKUPFDHK3S7PAZCBWIXRHTVF2PDVRJRCDWKY4VJ6KXBG4M4B4E) | Verifiable Soroban WASM Contract ID on Stellar Mainnet |
+| ⚡ **Mainnet Contract Explorer** | [StellarExpert Mainnet Contract](https://stellar.expert/explorer/public/contract/CA226E6MH7GUKRAAGDWWPFVAPS6A46RENSGS6KFDWWQZLOG434I6BJSM) | Verifiable Soroban WASM Contract ID on Stellar Mainnet |
 | 🧪 **Testnet Contract Explorer** | [StellarExpert Testnet Contract](https://stellar.expert/explorer/testnet/contract/CA2243ULIEURMTJ5AEMFA2SWN4TGFM3III6Z4ASO5CZTUXCI7WKRU3OY) | Verifiable Soroban WASM Contract ID on Stellar Testnet |
 | 📜 **Proof of Deployment** | [DEPLOYMENT.md](./DEPLOYMENT.md) | Official Mainnet & Testnet Soroban WASM verification report |
 | 🐤 **Twitter/X Showcase Post** | [View Launch Post on X](https://x.com/Shuvankar112/status/2082378112072077796) | Official product launch thread & showcase |
